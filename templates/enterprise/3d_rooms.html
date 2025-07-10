@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>3D Rooms</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/enterprise/settings" class="btn btn-dark">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Current 3D Rooms</h5>
+                </div>
+                <div class="card-body">
+                    {% if enterprise_3d_rooms %}
+                    <div class="row">
+                        {% for room in enterprise_3d_rooms %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <img src="{{ room.thumbnail_path }}" class="card-img-top" alt="{{ room.name }}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ room.name }}</h5>
+                                    <p class="card-text">{{ room.category|replace('_', ' ')|title }}</p>
+                                    <form action="/enterprise/3d-rooms/delete" method="post">
+                                        <input type="hidden" name="room_id" value="{{ room.id }}">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i> Remove
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-center">No 3D rooms added yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Add 3D Room</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/enterprise/3d-rooms/upload" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Room Category</label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="">Select a category</option>
+                                <option value="living_room">Living Room</option>
+                                <option value="bedroom">Bedroom</option>
+                                <option value="kitchen">Kitchen</option>
+                                <option value="bathroom">Bathroom</option>
+                                <option value="dining_room">Dining Room</option>
+                                <option value="office">Office</option>
+                                <option value="hallway">Hallway</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Room Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="thumbnail" class="form-label">Thumbnail Image</label>
+                            <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*" required>
+                            <div class="form-text">
+                                Upload a preview image for the 3D room.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="model" class="form-label">3D Model File</label>
+                            <input type="file" class="form-control" id="model" name="model" accept=".gltf,.glb" required>
+                            <div class="form-text">
+                                Upload a .gltf or .glb 3D model file.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description (Optional)</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Upload 3D Room
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row">
+        <!-- Admin Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Admin Dashboard</h4>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="/admin/materials" class="list-group-item list-group-item-action {% if active_page == 'materials' %}active{% endif %}">
+                        <i class="fas fa-boxes me-2"></i> Manage Materials
+                    </a>
+                    <a href="/admin/users" class="list-group-item list-group-item-action {% if active_page == 'users' %}active{% endif %}">
+                        <i class="fas fa-users me-2"></i> Manage Users
+                    </a>
+                    <a href="/admin/enterprises" class="list-group-item list-group-item-action {% if active_page == 'enterprises' %}active{% endif %}">
+                        <i class="fas fa-building me-2"></i> Manage Enterprises
+                    </a>
+                    <a href="/admin/orders" class="list-group-item list-group-item-action {% if active_page == 'enterprises' %}active{% endif %}">
+                        <i class="fas fa-building me-2"></i> Manage Orders
+                    </a>
+                    <a href="/admin/statistics" class="list-group-item list-group-item-action {% if active_page == 'statistics' %}active{% endif %}">
+                        <i class="fas fa-chart-bar me-2"></i> Statistics
+                    </a>
+                    <a href="/room_visualization_index" class="list-group-item list-group-item-action">
+                        <i class="fas fa-arrow-left me-2"></i> Back to App
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admin Content -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h3 class="mb-0">{% block admin_title %}Admin Panel{% endblock %}</h3>
+                </div>
+                <div class="card-body">
+                    {% block admin_content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

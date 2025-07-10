@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Enterprise Materials</h1>
+            <p class="text-muted">Manage materials for your enterprise. Materials you add will be available to all users in your enterprise.</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="#" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#uploadTextureModal">
+                <i class="fas fa-plus"></i> Add New Material
+            </a>
+            <a href="/enterprise/settings" class="btn btn-dark">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Your Enterprise Materials</h5>
+                    <span class="badge bg-info">{{ materials|length }} materials</span>
+                </div>
+                <div class="card-body">
+                    {% if materials %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for material in materials %}
+                                <tr>
+                                    <td>
+                                        {% if material.image_path %}
+                                            {% if material.image_path.startswith('#') %}
+                                                <div style="width: 40px; height: 40px; background-color: {{ material.image_path }}; border-radius: 4px;"></div>
+                                            {% else %}
+                                                <img src="{{ material.image_path }}" alt="{{ material.name }}" style="height: 40px; width: 40px; object-fit: cover; border-radius: 4px;">
+                                            {% endif %}
+                                        {% else %}
+                                            <div class="bg-secondary" style="height: 40px; width: 40px; border-radius: 4px;"></div>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ material.name }}</td>
+                                    <td>{{ material.material|capitalize }}</td>
+                                    <td>{{ material.price_per_sqm }}</td>
+                                    <td>
+                                      {% if material.visible %}
+                                          <span class="badge bg-success">Public</span>
+                                      {% else %}
+                                          <span class="badge bg-warning" role="button" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                                title="Want to make it public? Contact RoomFlux admin">
+                                              Enterprise Only
+                                          </span>
+                                      {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/enterprise/materials/edit/{{ material.id }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" data-bs-target="#deleteMaterialModal{{ material.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- Upgrade Info Modal -->
+                                        <div class="modal fade" id="upgradeInfoModal" tabindex="-1" aria-hidden="true">
+                                          <div class="modal-dialog">
+                                              <div class="modal-content">
+                                                  <div class="modal-header">
+                                                      <h5 class="modal-title">Make Your Material Public</h5>
+                                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                  </div>
+                                                  <div class="modal-body">
+                                                      <div class="text-center mb-4">
+                                                          <i class="fas fa-globe fa-3x text-primary mb-3"></i>
+                                                          <h4>Share Your Materials Globally</h4>
+                                                      </div>
+                                                      
+                                                      <p>Currently, this material is only visible within your enterprise. To make it available on the main site (RoomFlux.com) for all users to see and use:</p>
+                                                      
+                                                      <ol class="mb-4">
+                                                          <li>Contact our admin team at <a href="mailto:admin@roomflux.com">admin@roomflux.com</a></li>
+                                                          <li>Provide the material name and ID</li>
+                                                          <li>Our team will review and approve your material</li>
+                                                      </ol>
+                                                      
+                                                      <div class="alert alert-info">
+                                                          <i class="fas fa-info-circle"></i> Public materials gain more visibility and can be used and purchased by all of RoomFlux's users.
+                                                      </div>
+                                                  </div>
+                                                  <div class="modal-footer">
+                                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                      <a href="mailto:admin@example.com?subject=Material%20Publication%20Request&body=I%20would%20like%20to%20make%20my%20material%20public.%0A%0AMaterial%20ID:%20%0AMaterial%20Name:%20%0A%0AThank%20you." class="btn btn-primary">
+                                                          <i class="fas fa-envelope"></i> Contact Admin
+                                                      </a>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                        </div>
+                                        
+                                        <!-- Delete Material Modal -->
+                                        <div class="modal fade" id="deleteMaterialModal{{ material.id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Confirm Deletion</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete <strong>{{ material.name }}</strong>?</p>
+                                                        <p class="text-danger">This action cannot be undone.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form action="/enterprise/materials/delete" method="post">
+                                                            <input type="hidden" name="material_id" value="{{ material.id }}">
+                                                            <button type="submit" class="btn btn-danger">Delete Material</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <div class="mb-3">
+                            <i class="fas fa-box-open fa-3x text-muted"></i>
+                        </div>
+                        <h5>No Materials Yet</h5>
+                        <p class="text-muted">Start by adding materials for your enterprise.</p>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadTextureModal">
+                            <i class="fas fa-plus"></i> Add New Material
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Material Modal - Copied directly from room_visualization_index.html -->
+<div class="modal fade" id="uploadTextureModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Material</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form action="/enterprise/materials/add" method="post" enctype="multipart/form-data" class="texture-upload-form"
+          novalidate>
+          <!-- Material Type Selection -->
+          <div class="form-group mb-3">
+            <select name="material" id="materialType" class="form-control" required>
+              <option value="">Select Type</option>
+              <option value="tile">Tile</option>
+              <option value="wallpaper">Wallpaper</option>
+              <option value="flooring">Flooring</option>
+              <option value="paint">Paint</option>
+            </select>
+          </div>
+
+          <!-- Common Fields -->
+          <div class="form-group">
+            <input type="text" name="name" placeholder="Name" class="form-control" required>
+          </div>
+
+          <!-- Tile Specific Fields -->
+          <div class="material-specific tile" style="display: none;">
+            <div class="form-group mb-3">
+              <label for="tile_width">Width (cm)</label>
+              <input type="number" id="tile_width" name="tile_width" class="form-control">
+              <div class="invalid-feedback">Width is required for tiles</div>
+            </div>
+            <div class="form-group mb-3">
+              <label for="tile_height">Height (cm)</label>
+              <input type="number" id="tile_height" name="tile_height" class="form-control">
+              <div class="invalid-feedback">Height is required for tiles</div>
+            </div>
+
+            <!-- Add Material Composition field here for tile -->
+            <div class="form-group mb-3">
+              <label for="material_composition">Material Composition</label>
+              <input type="text" name="material_composition" id="material_composition" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <select name="finish_type" class="form-control">
+                <option value="">Select Finish</option>
+                <option value="matte">Matte</option>
+                <option value="glossy">Glossy</option>
+                <option value="textured">Textured</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Wallpaper Specific Fields -->
+          <div class="material-specific wallpaper" style="display: none;">
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Roll Width (cm)</label>
+                <input type="number" id="wallpaper_width" name="wallpaper_width"
+                  class="form-control material-dimension" required>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Roll Length (cm)</label>
+                <input type="number" id="wallpaper_height" name="wallpaper_height"
+                  class="form-control material-dimension" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flooring Specific Fields  -->
+          <div class="material-specific flooring" style="display: none;">
+            <div class="form-row">
+              <div class="form-group">
+                <input type="number" id="flooring_width" name="flooring_width" placeholder="Width (cm)"
+                  class="form-control">
+              </div>
+              <div class="form-group">
+                <input type="number" id="flooring_height" name="flooring_height" placeholder="Length (cm)"
+                  class="form-control">
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="material_composition">Material Composition</label>
+              <input type="text" name="material_composition" id="material_composition" class="form-control">
+            </div>
+          </div>
+
+          <!-- Paint Specific Fields -->
+          <div class="material-specific paint" style="display: none;">
+            <div class="form-group mb-3">
+              <label for="paint_type">Paint Type</label>
+              <select id="paint_type" name="paint_type" class="form-control">
+                <option value="solid">Solid Color</option>
+                <option value="textured">Textured Paint</option>
+              </select>
+            </div>
+
+            <!-- Solid Paint Fields -->
+            <div id="solid_paint_fields" class="paint-type-fields">
+              <div class="form-group mb-3">
+                <label for="color_code">Color Code (HEX)</label>
+                <input type="color" id="color_code" name="color_code" class="form-control">
+                <div id="color-preview"
+                  style="margin-top: 10px; width: 50px; height: 50px; border: 1px solid #ccc;"></div>
+                <span id="hex-display" style="display: block; margin-top: 5px;"></span>
+              </div>
+            </div>
+
+            <!-- Textured Paint Fields -->
+            <div id="textured_paint_fields" class="paint-type-fields" style="display: none;">
+              <div class="form-group mb-3">
+                <label for="paint_image">Paint Texture Image</label>
+                <input type="file" id="paint_image" name="image" accept="image/*" class="form-control">
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="paint_finish">Paint Finish</label>
+              <select id="paint_finish" name="paint_finish" class="form-control">
+                <option value="">Select Paint Finish</option>
+                <option value="matte">Matte</option>
+                <option value="eggshell">Eggshell</option>
+                <option value="satin">Satin</option>
+                <option value="semi-gloss">Semi-Gloss</option>
+                <option value="gloss">Gloss</option>
+                <option value="gloss">Effects</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Common Fields -->
+          <div class="form-group">
+            <input type="number" step="0.1" name="price_per_sqm" placeholder="Price per m²" class="form-control"
+              required>
+          </div>
+
+          <div class="form-group">
+            <input type="text" name="manufacturer" placeholder="Manufacturer" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <textarea name="description" placeholder="Description" class="form-control" required></textarea>
+          </div>
+
+          <!-- Image upload for all except paint -->
+          <div class="form-group non-paint-field">
+            <label class="file-upload">
+              <input type="file" name="image" accept="image/*">
+              <span>Choose Image</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Upload Material</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', path='js/enhanced-features.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Initialize tooltips
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+      
+      // Add click event to Enterprise Only badges
+      document.querySelectorAll('.badge.bg-warning').forEach(function(badge) {
+          badge.addEventListener('click', function() {
+              var modal = new bootstrap.Modal(document.getElementById('upgradeInfoModal'));
+              modal.show();
+          });
+      });
+  });
+</script>
+{% endblock %}

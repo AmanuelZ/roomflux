@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Manage Enterprises</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/admin/enterprises/new" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Enterprise
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Logo</th>
+                            <th>Name</th>
+                            <th>Subdomain</th>
+                            <th>Custom Domain</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enterprise in enterprises %}
+                        <tr>
+                            <td>{{ enterprise.id }}</td>
+                            <td>
+                                {% if enterprise.logo_path %}
+                                <img src="{{ enterprise.logo_path }}" alt="{{ enterprise.name }}" style="height: 40px;">
+                                {% else %}
+                                <span class="text-muted">No logo</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ enterprise.name }}</td>
+                            <td>{{ enterprise.subdomain }}</td>
+                            <td>{{ enterprise.custom_domain or '-' }}</td>
+                            <td>
+                                {% if enterprise.active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="/admin/enterprises/{{ enterprise.id }}/edit" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal{{ enterprise.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Delete Confirmation Modal -->
+                                <div class="modal fade" id="deleteModal{{ enterprise.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirm Delete</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Are you sure you want to delete the enterprise "{{ enterprise.name }}"?</p>
+                                                <p class="text-danger">This action cannot be undone and will remove all associated data.</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancel</button>
+                                                <form action="/admin/enterprises/{{ enterprise.id }}/delete" method="post">
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center">No enterprises found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card">
+        <div class="card-header">
+            <h3>Enterprise Detection Debug</h3>
+        </div>
+        <div class="card-body">
+            <h4>Request Information</h4>
+            <table class="table">
+                <tr>
+                    <th>Host</th>
+                    <td>{{ host }}</td>
+                </tr>
+                <tr>
+                    <th>URL</th>
+                    <td>{{ url }}</td>
+                </tr>
+                <tr>
+                    <th>Query Parameters</th>
+                    <td>{{ query_params }}</td>
+                </tr>
+            </table>
+            
+            <h4>Detected Enterprise</h4>
+            {% if enterprise %}
+            <table class="table">
+                <tr>
+                    <th>ID</th>
+                    <td>{{ enterprise.id }}</td>
+                </tr>
+                <tr>
+                    <th>Name</th>
+                    <td>{{ enterprise.name }}</td>
+                </tr>
+                <tr>
+                    <th>Subdomain</th>
+                    <td>{{ enterprise.subdomain }}</td>
+                </tr>
+                <tr>
+                    <th>Custom Domain</th>
+                    <td>{{ enterprise.custom_domain or 'None' }}</td>
+                </tr>
+                <tr>
+                    <th>Active</th>
+                    <td>{{ enterprise.active }}</td>
+                </tr>
+            </table>
+            {% else %}
+            <div class="alert alert-warning">
+                No enterprise detected for this request.
+            </div>
+            {% endif %}
+            
+            <h4>All Enterprises in Database</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Subdomain</th>
+                        <th>Custom Domain</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in all_enterprises %}
+                    <tr>
+                        <td>{{ e.id }}</td>
+                        <td>{{ e.name }}</td>
+                        <td>{{ e.subdomain }}</td>
+                        <td>{{ e.custom_domain or 'None' }}</td>
+                        <td>{{ e.active }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">No enterprises found in database</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <h4>Test Enterprise Access</h4>
+            <div class="list-group">
+                {% for e in all_enterprises %}
+                <a href="http://{{ e.subdomain }}.localhost/enterprise/settings" class="list-group-item list-group-item-action">
+                    {{ e.name }} ({{ e.subdomain }}.localhost)
+                </a>
+                <a href="http://localhost/?enterprise={{ e.subdomain }}" class="list-group-item list-group-item-action">
+                    {{ e.name }} (via query parameter)
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

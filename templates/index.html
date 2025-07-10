@@ -1,0 +1,633 @@
+{% extends "base.html"%}
+
+{% block scripts %}
+<script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Carousel Start -->
+<div class="header-carousel owl-carousel">
+    <div class="header-carousel-item bg-primary">
+        <div class="carousel-caption">
+            <div class="container">
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-7 animated fadeInLeft">
+                        <div class="text-sm-center text-md-start">
+                            <h1 class="display-1 text-white mb-4">Design Your Dream Space Without Guesswork</h1>
+                            <p class="mb-5 fs-5">Transform your rooms instantly with AI-powered visualization before buying a single paint can, tile, or wallpaper. Experience the future of interior customization.</p>
+                            <div class="d-flex justify-content-center justify-content-md-start flex-shrink-0 mb-4">
+                                <a class="btn btn-light rounded-pill py-3 px-4 px-md-5 me-2" href="{{ url_for('room_visualization_index') }}">Try It Now</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 animated fadeInRight">
+                        <div class="calrousel-img" style="object-fit: cover;">
+                            <dotlottie-player
+                                src="{{ url_for('static', path='/dotlottie/RoomFlux-Furniture.lottie') }}"
+                                background="transparent"
+                                speed="0.5"
+                                style="width: 100%; height: 600px;"
+                                loop
+                                autoplay>
+                            </dotlottie-player>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="header-carousel-item bg-dark">
+        <div class="carousel-caption">
+            <div class="container">
+                <div class="row gy-4 gy-lg-0 gx-0 gx-lg-5 align-items-center">
+                    <div class="col-lg-5 animated fadeInLeft">
+                        <div class="calrousel-img">
+                            <dotlottie-player
+                                src="{{ url_for('static', path='/dotlottie/RoomFlux-Wall.lottie') }}"
+                                background="transparent"
+                                speed="1"
+                                style="width: 100%; height: 600px;"
+                                loop
+                                autoplay>
+                            </dotlottie-player>
+                        </div>
+                    </div>
+                    <div class="col-lg-7 animated fadeInRight">
+                        <div class="text-sm-center text-md-end">
+                            <h1 class="display-1 text-white mb-4">See Your Ideas Come to Life</h1>
+                            <p class="mb-5 fs-5">Stop wondering how new colors and designs will look. Our AI shows you exactly what to expect before making costly purchases or commitments.</p>
+                            <div class="d-flex justify-content-center justify-content-md-end flex-shrink-0 mb-4">
+                                <a class="btn btn-light rounded-pill py-3 px-4 px-md-5 me-2" href="{{ url_for('room_visualization_index') }}#3d-visualizer">Explore Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Carousel End -->
+
+<!-- Benefits Section Start -->
+<div class="container-fluid py-5 bg-light">
+    <div class="container py-5">
+        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
+            <h4 class="text-primary">Why Choose RoomFlux</h4>
+            <h1 class="display-4 mb-4">Transform Your Space with Confidence</h1>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="service-item bg-white text-center p-5 rounded">
+                    <i class="fa fa-money-bill-wave fa-3x text-primary mb-4"></i>
+                    <h4 class="mb-3">Save Money</h4>
+                    <p class="mb-0">Avoid expensive design mistakes by seeing results before you buy materials or furniture</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="service-item bg-white text-center p-5 rounded">
+                    <i class="fa fa-clock fa-3x text-primary mb-4"></i>
+                    <h4 class="mb-3">Save Time</h4>
+                    <p class="mb-0">No more traveling between stores or endless sample testing. Browse thousands of options instantly</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="service-item bg-white text-center p-5 rounded">
+                    <i class="fa fa-star fa-3x text-primary mb-4"></i>
+                    <h4 class="mb-3">Professional Results</h4>
+                    <p class="mb-0">Get designer-quality visualizations without hiring an expensive professional</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.7s">
+                <div class="service-item bg-white text-center p-5 rounded">
+                    <i class="fa fa-check-circle fa-3x text-primary mb-4"></i>
+                    <h4 class="mb-3">Make Confident Decisions</h4>
+                    <p class="mb-0">Eliminate uncertainty about how colors and materials will look in your actual space</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Benefits Section End -->
+
+<!-- Transformation Showcase Start -->
+<div class="container-fluid py-5" style="display: none;">
+    <div class="container py-5">
+        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
+            <h4 class="text-primary">See The Difference</h4>
+            <h1 class="display-4 mb-4">Amazing Transformations</h1>
+            <p class="mb-0">From ordinary to extraordinary with just a few clicks</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 wow fadeInUp" data-wow-delay="0.2s">
+                <div class="card position-relative overflow-hidden">
+                    <div class="card-body p-0">
+                        <img src="{{ url_for('static', path='/img/room-interior-design.jpg') }}" class="img-fluid w-100" alt="Original Room">
+                        <div class="overlay-text bg-dark bg-opacity-75 text-white p-3">
+                            <h5 style="color:aliceblue">Original Room</h5>
+                            <p class="mb-0">Before transformation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 wow fadeInUp" data-wow-delay="0.4s">
+                <div class="card position-relative overflow-hidden">
+                    <div class="card-body p-0">
+                        <img src="{{ url_for('static', path='/img/3d-room-design.jpg') }}" class="img-fluid w-100" alt="Transformed Room">
+                        <div class="overlay-text bg-primary bg-opacity-75 text-white p-3">
+                            <h5 style="text-shadow: none;">Transformed Room</h5>
+                            <p class="mb-0">After using RoomFlux</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ url_for('room_visualization_index') }}" class="btn btn-primary rounded-pill py-3 px-5">Create Your Own Transformation</a>
+        </div>
+    </div>
+</div>
+<!-- Transformation Showcase End -->
+
+<!-- Features Showcase Start -->
+<div class="container-fluid blog py-5 bg-dark">
+    <div class="container py-5">
+        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
+            <h4 class="text-primary">Our Solutions</h4>
+            <h1 class="display-4 mb-4 text-light">Room Visualization Tools</h1>
+            <p class="mb-0 text-light">Compare thousands of products from hundreds of vendors without leaving home</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <!-- Room Wall Visualizer Card -->
+            <div class="col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.2s">
+                <div class="blog-item">
+                    <div class="blog-img">
+                        <img src="{{ url_for('static', path='/img/room-interior-design.jpg') }}" class="img-fluid rounded-top w-100" alt="">
+                    </div>
+                    <div class="blog-content p-4">
+                        <a href="{{ url_for('room_visualization_index') }}" class="h4 d-inline-block mb-3">Room Wall Visualizer</a>
+                        <p class="mb-3">Transform your existing space instantly. Upload a photo and see how new wall colors, tiles, and textures look in your actual room.</p>
+                        <a href="{{ url_for('room_visualization_index') }}" class="btn btn-primary p-0 rounded-pill py-2 px-4 mt-2">Transform My Room</a>
+                    </div>
+                </div>
+            </div>
+            <!-- 3D Designer Card -->
+            <div class="col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.4s">
+                <div class="blog-item">
+                    <div class="blog-img">
+                        <img src="{{ url_for('static', path='/img/3d-room-design.jpg') }}" class="img-fluid rounded-top w-100" alt="">
+                    </div>
+                    <div class="blog-content p-4">
+                        <a href="{{ url_for('room_visualization_index') }}#3d-visualizer" class="h4 d-inline-block mb-3">3D Room Designer</a>
+                        <p class="mb-3">Start fresh with our powerful 3D tool. Plan room layouts, experiment with different materials, and visualize your perfect space.</p>
+                        <a href="{{ url_for('room_visualization_index') }}#3d-visualizer" class="btn btn-primary p-0 rounded-pill py-2 px-4 mt-2">Visualize in 3D</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Features Showcase End -->
+
+<!-- Testimonials Start -->
+<div class="container-fluid testimonial py-5">
+    <div class="container py-5">
+        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
+            <h4 class="text-primary">Testimonials</h4>
+            <h1 class="display-4 mb-4">What Our Customers Are Saying</h1>
+        </div>
+        <div class="owl-carousel testimonial-carousel wow fadeInUp" data-wow-delay="0.2s">
+            <div class="testimonial-item bg-light rounded">
+                <div class="row g-0">
+                    <div class="col-lg-8 col-xl-9">
+                        <div class="d-flex flex-column my-auto text-start p-4">
+                            <h4 class="text-dark mb-0">Makeda Tekle</h4>
+                            <p class="mb-3">Home Owner, Addis Ababa</p>
+                            <div class="d-flex text-primary mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="mb-0">"RoomFlux saved me countless trips between stores! I was able to visualize different tile options for my kitchen and bathroom without purchasing samples or traveling to multiple vendors. The final result looks exactly as it appeared in the visualization."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-item bg-light rounded">
+                <div class="row g-0">
+                    <div class="col-lg-8 col-xl-9">
+                        <div class="d-flex flex-column my-auto text-start p-4">
+                            <h4 class="text-dark mb-0">Solomon Abebe</h4>
+                            <p class="mb-3">Interior Designer, Bahir Dar</p>
+                            <div class="d-flex text-primary mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="mb-0">"As a professional designer, RoomFlux has revolutionized how I present concepts to clients. They can see exactly how different options will look in their actual space, which builds confidence and speeds up decision-making. This tool has become essential for my business."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-item bg-light rounded">
+                <div class="row g-0">
+                    <div class="col-lg-8 col-xl-9">
+                        <div class="d-flex flex-column my-auto text-start p-4">
+                            <h4 class="text-dark mb-0">Tigist Haile</h4>
+                            <p class="mb-3">First-time Home Renovator, Hawassa</p>
+                            <div class="d-flex text-primary mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="mb-0">"I was terrified of making expensive mistakes during my first renovation. RoomFlux allowed me to experiment with bold colors I wouldn't have dared try otherwise. Now my living room is stunning with the coral accent wall I visualized first through this amazing tool!"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Testimonials End -->
+
+<!-- Before-After Gallery Start -->
+<div class="container-fluid py-5 bg-light">
+    <div class="container py-5">
+        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
+            <h4 class="text-primary">See It To Believe It</h4>
+            <h1 class="display-4 mb-4">Before & After Transformations</h1>
+            <p class="mb-0">Real rooms transformed with our visualization technology</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Original Image (Left Side) - Fixed -->
+            <div class="col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="position-relative transformation-container h-100">
+                    <img src="{{ url_for('static', path='/transform/RoomFlux-Original.jpg') }}" class="img-fluid rounded w-100 h-100" alt="Original Room" style="object-fit: cover;">
+                    <div class="transformation-label bg-dark text-white px-3 py-1">Original Room</div>
+                </div>
+            </div>
+            
+            <!-- Transformations Carousel (Right Side) -->
+            <div class="col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                <div id="transformationCarousel" class="carousel carousel-fade" data-bs-ride="false">
+                    <div class="carousel-inner">
+                        <!-- Wallpaper Transformation -->
+                        <div class="carousel-item active">
+                            <div class="position-relative transformation-container">
+                                <img src="{{ url_for('static', path='/transform/RoomFlux-Wallpaper.jpg') }}" class="img-fluid rounded w-100" alt="After - Wallpaper">
+                                <div class="transformation-label bg-primary text-white px-3 py-1">After - Wallpaper</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Paint Transformation -->
+                        <div class="carousel-item">
+                            <div class="position-relative transformation-container">
+                                <img src="{{ url_for('static', path='/transform/RoomFlux-Paint.jpg') }}" class="img-fluid rounded w-100" alt="After - Paint">
+                                <div class="transformation-label bg-primary text-white px-3 py-1">After - Paint</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Texture Paint Transformation -->
+                        <div class="carousel-item">
+                            <div class="position-relative transformation-container">
+                                <img src="{{ url_for('static', path='/transform/RoomFlux-Texture-Paint.jpg') }}" class="img-fluid rounded w-100" alt="After - Texture Paint">
+                                <div class="transformation-label bg-primary text-white px-3 py-1">After - Texture Paint</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ceramic Transformation -->
+                        <div class="carousel-item">
+                            <div class="position-relative transformation-container">
+                                <img src="{{ url_for('static', path='/transform/RoomFlux-Ceramic.jpg') }}" class="img-fluid rounded w-100" alt="After - Ceramic">
+                                <div class="transformation-label bg-primary text-white px-3 py-1">After - Ceramic</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Carousel Controls -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#transformationCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#transformationCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    
+                    <!-- Carousel Indicators -->
+                    <div class="carousel-indicators" style="bottom: 35px;">
+                        <button type="button" data-bs-target="#transformationCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Wallpaper"></button>
+                        <button type="button" data-bs-target="#transformationCarousel" data-bs-slide-to="1" aria-label="Paint"></button>
+                        <button type="button" data-bs-target="#transformationCarousel" data-bs-slide-to="2" aria-label="Texture Paint"></button>
+                        <button type="button" data-bs-target="#transformationCarousel" data-bs-slide-to="3" aria-label="Ceramic"></button>
+                    </div>
+                </div>
+            </div>
+                
+            <!-- Transformation Type Buttons -->
+            <div class="d-flex justify-content-center mt-4">
+                <button class="btn btn-sm btn-outline-primary mx-1 active" data-bs-target="#transformationCarousel" data-bs-slide-to="0">Wallpaper</button>
+                <button class="btn btn-sm btn-outline-primary mx-1" data-bs-target="#transformationCarousel" data-bs-slide-to="1">Paint</button>
+                <button class="btn btn-sm btn-outline-primary mx-1" data-bs-target="#transformationCarousel" data-bs-slide-to="2">Texture Paint</button>
+                <button class="btn btn-sm btn-outline-primary mx-1" data-bs-target="#transformationCarousel" data-bs-slide-to="3">Ceramic</button>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5 wow fadeInUp" data-wow-delay="0.9s">
+            <a href="{{ url_for('room_visualization_index') }}" class="btn btn-primary rounded-pill py-3 px-5">Try It With Your Room</a>
+        </div>
+    </div>
+</div>
+<!-- Before-After Gallery End -->
+
+<!-- FAQs Start -->
+<div class="container-fluid faq-section py-5">
+    <div class="container py-5">
+        <div class="row g-5 align-items-center">
+            <div class="col-xl-6 wow fadeInLeft" data-wow-delay="0.2s">
+                <div class="h-100">
+                    <div class="mb-5">
+                        <h4 class="text-primary">Some Important FAQ's</h4>
+                        <h1 class="display-4 mb-0">Common Questions</h1>
+                    </div>
+                    <div class="accordion" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    Q: Can I change the wallpaper of the room?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show active" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                <div class="accordion-body rounded">
+                                    A: Currently, the feature to change the wallpaper of the room is not supported. Our project only allows for changing the walls of the room. However, we are planning to add this feature in future updates.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Q: Why do we need to use RoomFlux?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    A: Finding the right finishing materials like tiles, paint, or wallpaper is very cumbersome and these products are often not found in the same location. Even when you find options, you have no idea if they'll work with your existing furniture. RoomFlux lets you compare hundreds to thousands of products from numerous vendors without leaving home, saving time, money, and ensuring your design choices will look great in your space.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Q: How can I upload images for the walls?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    A: To upload images for the walls, you need to access the "Room visualization" section in the user interface. Then, click the "Choose file" button and select an image from your computer and apply it to the walls you want to change.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    Q: How accurate are the visualizations?
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    A: Our AI-powered technology creates highly realistic visualizations that accurately represent how materials will look in your space, including proper lighting and texture effects. What you see is very close to what you'll get when the actual materials are installed.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6 wow fadeInRight" data-wow-delay="0.4s">
+                <dotlottie-player
+                    src="{{ url_for('static', path='/dotlottie/RoomFlux-Living.lottie') }}"
+                    background="transparent"
+                    speed="0.25"
+                    style="width: 100%; height: 500px;"
+                    loop
+                    autoplay>
+                </dotlottie-player>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FAQs End -->
+
+<!-- CTA Section Start -->
+<div class="container-fluid py-5 bg-primary">
+    <div class="container py-5">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-7 text-lg-start text-center text-white wow fadeInUp" data-wow-delay="0.2s">
+                <h1 class="display-4 text-white mb-4">Ready to Transform Your Space?</h1>
+                <p class="fs-5 mb-4">Stop wondering how new designs will look. See them instantly with RoomFlux.</p>
+            </div>
+            <div class="col-lg-5 text-lg-end text-center wow fadeInUp" data-wow-delay="0.4s">
+                <a href="{{ url_for('room_visualization_index') }}" class="btn btn-light rounded-pill py-3 px-5">Start Designing Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- CTA Section End -->
+
+<!-- Team Section - Hidden as per original template -->
+<div class="container-fluid team pb-5" style="display: none;">
+    <!-- Team content hidden as in original template -->
+</div>
+
+<style>
+    .overlay-text {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+    
+    .blog-item {
+        transition: transform 0.3s ease;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .blog-item:hover {
+        transform: translateY(-10px);
+    }
+
+    .transformation-container {
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        margin-bottom: 0px;
+        position: relative;
+        height: 100%;
+    }
+    
+    .transformation-label {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        border-radius: 4px;
+        font-weight: 600;
+        z-index: 10;
+    }
+    
+    #transformationCarousel {
+        height: 100%;
+    }
+    
+    #transformationCarousel .carousel-inner {
+        height: 100%;
+    }
+    
+    #transformationCarousel .carousel-item {
+        height: 100%;
+    }
+    
+    #transformationCarousel .carousel-item img {
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Custom carousel controls */
+    #transformationCarousel .carousel-control-prev-icon,
+    #transformationCarousel .carousel-control-next-icon {
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        padding: 15px;
+    }
+    
+    /* Customize carousel indicators */
+    #transformationCarousel .carousel-indicators {
+        position: absolute;
+        bottom: 10px;
+        margin-bottom: 0;
+    }
+    
+    #transformationCarousel .carousel-indicators button {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #16243D; /* text-dark color */
+        border: none;
+        margin: 0 5px;
+    }
+    
+    #transformationCarousel .carousel-indicators button.active {
+        background-color: var(--primary); /* text-primary color */
+    }
+    
+    /* Fade transition for carousel */
+    .carousel-fade .carousel-item {
+        opacity: 0;
+        transition: opacity 0.6s ease-in-out;
+    }
+    
+    .carousel-fade .carousel-item.active {
+        opacity: 1;
+    }
+    
+    /* Style for the transformation type buttons */
+    .btn-outline-primary.active {
+        background-color: var(--primary) !important;
+        color: #16243D !important;
+        border-color: var(--primary) !important;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: var(--dark) !important;
+        color: #16243D !important;
+        border-color: var(--dark) !important;
+    }
+</style>
+
+<script>
+     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the carousel manually with no auto-cycling
+        var transformationCarousel = new bootstrap.Carousel(document.getElementById('transformationCarousel'), {
+            interval: false,  // Disable auto-cycling
+            keyboard: false,  // Disable keyboard controls
+            touch: false      // Disable touch/swipe
+        });
+
+        // Then add these direct event handlers for the buttons
+        document.querySelector('.carousel-control-prev').addEventListener('click', function(e) {
+            e.preventDefault();
+            transformationCarousel.prev();
+        });
+
+        document.querySelector('.carousel-control-next').addEventListener('click', function(e) {
+            e.preventDefault();
+            transformationCarousel.next();
+        });
+        
+        // Get all transformation type buttons
+        const transformButtons = document.querySelectorAll('[data-bs-target="#transformationCarousel"]');
+        
+        // Add click event to each button
+        transformButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                transformButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Get the slide index
+                const slideIndex = parseInt(this.getAttribute('data-bs-slide-to'));
+                
+                // Go to that slide
+                transformationCarousel.to(slideIndex);
+            });
+        });
+        
+        // Listen for carousel slide event to update button active state
+        const carouselElement = document.getElementById('transformationCarousel');
+        if (carouselElement) {
+            carouselElement.addEventListener('slide.bs.carousel', function(event) {
+                // Remove active class from all buttons
+                transformButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to corresponding button
+                const activeIndex = event.to;
+                const activeButton = document.querySelector(`[data-bs-target="#transformationCarousel"][data-bs-slide-to="${activeIndex}"]`);
+                if (activeButton) {
+                    activeButton.classList.add('active');
+                }
+            });
+        }
+        
+        // Match heights of original and transformed images
+        function matchHeights() {
+            const originalContainer = document.querySelector('.col-md-6:first-child .transformation-container');
+            const carouselContainer = document.getElementById('transformationCarousel');
+            
+            if (originalContainer && carouselContainer) {
+                const originalHeight = originalContainer.offsetHeight;
+                carouselContainer.style.height = originalHeight + 'px';
+                
+                // Also set height for carousel items
+                const carouselItems = document.querySelectorAll('#transformationCarousel .carousel-item');
+                carouselItems.forEach(item => {
+                    item.style.height = originalHeight + 'px';
+                });
+            }
+        }
+        
+        // Run on page load and window resize
+        matchHeights();
+        window.addEventListener('resize', matchHeights);
+    });
+</script>
+{% endblock %}

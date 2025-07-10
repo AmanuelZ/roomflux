@@ -1,0 +1,204 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-4">Order #{{ order.id }}</h1>
+        <a href="/admin/orders" class="btn btn-outline-dark">
+            <i class="fa fa-arrow-left me-2"></i> Back to Orders
+        </a>
+    </div>
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Order Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Order Date:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p><strong>Status:</strong> 
+                        <span class="badge 
+                            {% if order.status == 'delivered' %}bg-success
+                            {% elif order.status == 'cancelled' %}bg-danger
+                            {% elif order.status == 'shipped' %}bg-info
+                            {% elif order.status == 'paid' %}bg-success
+                            {% elif order.status == 'processing' %}bg-primary
+                            {% elif order.status == 'awaiting_fulfillment' %}bg-warning
+                            {% else %}bg-warning{% endif %}">
+                            {{ format_order_status(order.status) }}
+                        </span>
+                    </p>
+                    <p><strong>Total Amount:</strong> {{ order.total_amount }} Br</p>
+                </div>
+            </div>
+            
+            <!-- Customer Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ order.user.username }}</p>
+                    <p><strong>Email:</strong> {{ order.user.email }}</p>
+                </div>
+            </div>
+            
+            <!-- Shipping Address -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Shipping Address</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ shipping_address.full_name }}</p>
+                    <p>{{ shipping_address.address_line1 }}</p>
+                    {% if shipping_address.address_line2 %}
+                    <p>{{ shipping_address.address_line2 }}</p>
+                    {% endif %}
+                    <p>{{ shipping_address.city }}, {{ shipping_address.state }} {{ shipping_address.postal_code }}</p>
+                    <p><strong>Phone:</strong> {{ shipping_address.phone }}</p>
+                </div>
+            </div>
+            
+            <!-- Payment Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Payment Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Payment Method:</strong> 
+                        {% if order.payment_method == 'telebirr' %}
+                            Telebirr
+                            {% if order.telebirr_msisdn %}
+                            <br><strong>Phone Number:</strong> {{ order.telebirr_msisdn }}
+                            {% endif %}
+                        {% elif order.payment_method == 'cod' %}
+                            Cash on Delivery
+                        {% else %}
+                            {{ order.payment_method|title }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Order Items -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Items</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Type</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ item.image_path }}" alt="{{ item.name }}" 
+                                                 class="img-thumbnail me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <div>
+                                                <h6 class="mb-0">{{ item.name }}</h6>
+                                                <small class="text-muted">
+                                                    {% if item.item_type == 'tile' %}
+                                                        Material/Tile
+                                                    {% elif item.item_type == 'accessory' %}
+                                                        Accessory
+                                                    {% else %}
+                                                        Item
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if item.item_type == 'tile' %}
+                                            <span class="badge bg-primary">Tile</span>
+                                        {% elif item.item_type == 'accessory' %}
+                                            <span class="badge bg-success">Accessory</span>
+                                        {% else %}
+                                            <span class="badge bg-dark">Item</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.price }} Br</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>{{ item.subtotal }} Br</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                                    <td><strong>{{ order.total_amount }} Br</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Update Order Status -->
+            {% if user and user.role == 'superadmin' %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Update Order Status</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/admin/orders/{{ order.id }}/update-status" method="post">
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="awaiting_fulfillment" {% if order.status == 'awaiting_fulfillment' %}selected{% endif %}>Awaiting Fulfillment</option>
+                                <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                                <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                                <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                                <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Order Timeline -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="timeline">
+                        <li class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">Order Placed</h6>
+                                <p class="timeline-date">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                            </div>
+                        </li>
+                        {% if order.status != 'pending' %}
+                        <li class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="timeline-title">{{ format_order_status(order.status) }}</h6>
+                                <p class="timeline-date">Current Status</p>
+                            </div>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

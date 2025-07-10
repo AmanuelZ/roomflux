@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Enterprise Users</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/enterprise/settings" class="btn btn-dark">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Make the current users table take the full width -->
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Enterprise Users</h5>
+                    <small class="text-muted">Manage users associated with your enterprise</small>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for eu in enterprise_users %}
+                                <tr>
+                                    <td>{{ eu.user.username }}</td>
+                                    <td>{{ eu.user.email }}</td>
+                                    <td>
+                                        {% if eu.role == 'admin' %}
+                                        <span class="badge bg-primary">Admin</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">User</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <!-- Edit button - opens modal -->
+                                        <button type="button" class="btn btn-sm btn-primary" 
+                                                data-bs-toggle="modal" data-bs-target="#editUserModal{{ eu.user.id }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        
+                                        {% if eu.user_id != user.id or eu.role != 'admin' %}
+                                        <form action="/enterprise/users/remove" method="post" class="d-inline">
+                                            <input type="hidden" name="user_id" value="{{ eu.user_id }}">
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <button type="button" class="btn btn-sm btn-danger" disabled title="Cannot remove yourself as admin">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No users added to enterprise</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add modals for editing users -->
+        {% for eu in enterprise_users %}
+        {% set user_obj = eu.user %}
+        <div class="modal fade" id="editUserModal{{ user_obj.id }}" tabindex="-1" aria-labelledby="editUserModalLabel{{ user_obj.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserModalLabel{{ user_obj.id }}">Edit User: {{ user_obj.username }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="/enterprise/users/{{ user_obj.id }}/update-role">
+                            <div class="mb-3">
+                                <label for="role{{ user_obj.id }}" class="form-label">Role</label>
+                                <select id="role{{ user_obj.id }}" name="role" class="form-select">
+                                    <option value="user" {% if eu.role == 'user' %}selected{% endif %}>User</option>
+                                    <option value="admin" {% if eu.role == 'admin' %}selected{% endif %}>Admin</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,329 @@
+{% extends "base.html"%}
+
+{% block scripts %}
+
+<script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.js"></script>
+
+{% endblock %}
+
+{% block content %}
+<!-- Carousel Start -->
+<div class="header-carousel owl-carousel">
+    <div class="header-carousel-item bg-primary">
+        <div class="carousel-caption">
+            <div class="container">
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-7 animated fadeInLeft">
+                        <div class="text-sm-center text-md-start">
+                            <!-- <h4 class="text-white text-uppercase fw-bold mb-4">Welcome To HIT ROOM</h4> -->
+                            <h1 class="display-1 text-white mb-4">Welcome to RoomFlux </h1>
+                            <p class="mb-5 fs-5">Customized Rooms and Interiors Builder. Experience the future of interior customization.</p>
+                            </p>
+                            <div class="d-flex justify-content-center justify-content-md-start flex-shrink-0 mb-4">
+                                <!-- <a class="btn btn-light rounded-pill py-3 px-4 px-md-5 me-2" href="#"><i class="fas fa-play-circle me-2"></i> Watch Video</a>
+                                <a class="btn btn-dark rounded-pill py-3 px-4 px-md-5 ms-2" href="#">Learn More</a> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 animated fadeInRight">
+                        <div class="calrousel-img" style="object-fit: cover;">
+                            <!-- <img src="{{ url_for('static', path='/img/carousel-2.png') }}" class="img-fluid w-100" alt=""> -->
+                            <dotlottie-player
+                                src="{{ url_for('static', path='/dotlottie/RoomFlux-Furniture.lottie') }}"
+                                background="transparent"
+                                speed="0.25"
+                                style="width: 100%; height: 600px;"
+                                loop
+                                autoplay>
+                            </dotlottie-player>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="header-carousel-item bg-primary">
+        <div class="carousel-caption">
+            <div class="container">
+                <div class="row gy-4 gy-lg-0 gx-0 gx-lg-5 align-items-center">
+                    <div class="col-lg-5 animated fadeInLeft">
+                        <div class="calrousel-img">
+                            <!-- <img src="{{ url_for('static', path='/img/carousel-2.png') }}" class="img-fluid w-100" alt=""> -->
+                            <dotlottie-player
+                                src="{{ url_for('static', path='/dotlottie/RoomFlux-Wall.lottie') }}"
+                                background="transparent"
+                                speed="0.25"
+                                style="width: 100%; height: 600px;"
+                                loop
+                                autoplay>
+                            </dotlottie-player>
+                        </div>
+                    </div>
+                    <div class="col-lg-7 animated fadeInRight">
+                        <div class="text-sm-center text-md-end">
+                            <!-- <h4 class="text-white text-uppercase fw-bold mb-4">Welcome To HIT ROOM</h4> -->
+                            <h1 class="display-1 text-white mb-4">AI & 3D Visualization</h1>
+                            <p class="mb-5 fs-5">Transform the walls using our AI room processor and Experience realistic designs in 3D.</p>
+                            </p>
+                            <div class="d-flex justify-content-center justify-content-md-end flex-shrink-0 mb-4">
+                                <!-- <a class="btn btn-light rounded-pill py-3 px-4 px-md-5 me-2" href="#"><i class="fas fa-play-circle me-2"></i> Watch Video</a>
+                                <a class="btn btn-dark rounded-pill py-3 px-4 px-md-5 ms-2" href="#">Learn More</a> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Carousel End -->
+
+<!-- Blog Start -->
+<div class="container-fluid blog py-5">
+    <div class="container py-5">
+        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
+            <h4 class="text-primary">From Product</h4>
+            <h1 class="display-4 mb-4">Room Visualization Tools</h1>
+            <p class="mb-0">Transform your space with our comprehensive visualization suite</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <!-- Existing Photo Visualizer Card -->
+            <div class="col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.2s">
+                <div class="blog-item">
+                    <div class="blog-img">
+                        <img src="{{ url_for('static', path='/img/room-interior-design.jpg') }}" class="img-fluid rounded-top w-100" alt="">
+                    </div>
+                    <div class="blog-content p-4">
+                        <a href="{{ url_for('room_visualization_index') }}" class="h4 d-inline-block mb-3">Room Wall Visualizer</a>
+                        <p class="mb-3">Upload your room photos and instantly visualize new wall designs</p>
+                        <a href="{{ url_for('room_visualization_index') }}" class="btn p-0">Try Now <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <!-- New 3D Designer Card -->
+            <div class="col-lg-6 col-xl-4 wow fadeInUp" data-wow-delay="0.4s">
+                <div class="blog-item">
+                    <div class="blog-img">
+                        <img src="{{ url_for('static', path='/img/3d-room-design.jpg') }}" class="img-fluid rounded-top w-100" alt="">
+                    </div>
+                    <div class="blog-content p-4">
+                        <a href="{{ url_for('room_visualization_index') }}#3d-visualizer" class="h4 d-inline-block mb-3">3D Room Designer</a>
+                        <p class="mb-3">Design your space from scratch with our interactive 3D tool</p>
+                        <a href="{{ url_for('room_visualization_index') }}#3d-visualizer" class="btn p-0">Design Now <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Blog End -->
+
+
+<!-- FAQs Start -->
+<div class="container-fluid faq-section bg-light py-5">
+    <div class="container py-5">
+        <div class="row g-5 align-items-center">
+            <div class="col-xl-6 wow fadeInLeft" data-wow-delay="0.2s">
+                <div class="h-100">
+                    <div class="mb-5">
+                        <!-- <h4 class="text-primary">Some Important FAQ's</h4> -->
+                        <h4 class="text-primary">Some Important FAQ's</h4>
+                        <h1 class="display-4 mb-0">Common Frequently Asked Questions</h1>
+                        <!-- <h1 class="display-4 mb-0">Các Câu Hỏi Thường Gặp</h1> -->
+                    </div>
+                    <div class="accordion" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    Q: Can I change the wallpaper of the room?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show active" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                <div class="accordion-body rounded">
+                                    A: Currently, the feature to change the wallpaper of the room is not supported. Our project only allows for changing the walls of the room. However, we are planning to add this feature in future updates.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Q: Why do we need to use your product?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    A: Our product helps you customize and visualize your space easily, saving time and money while ensuring your design meets your exact needs.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Q: How can I upload images for the walls?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    A: To upload images for the walls, you need to access the "HIT Room visualization" section in the user interface. Then, click the "Choose file" button and select an image from your computer and apply it to the walls you want to change.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6 wow fadeInRight" data-wow-delay="0.4s">
+                <!-- <img src="{{ url_for('static', path='/img/carousel-2.png') }}" class="img-fluid w-100" alt=""> -->
+                <dotlottie-player
+                    src="{{ url_for('static', path='/dotlottie/RoomFlux-Living.lottie') }}"
+                    background="transparent"
+                    speed="0.25"
+                    style="width: 100%; height: 400px;"
+                    loop
+                    autoplay>
+                </dotlottie-player>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FAQs End -->
+
+
+<!-- Team Start -->
+<div class="container-fluid team pb-5" style="display: none;">
+    <div class="container pb-5">
+        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
+            <h4 class="text-primary">Our Team</h4>
+            <h1 class="display-4 mb-4">Meet Our Expert Team Members</h1>
+            <!-- <p class="mb-0">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur adipisci facilis cupiditate recusandae aperiam temporibus corporis itaque quis facere, numquam, ad culpa deserunt sint dolorem autem obcaecati, ipsam mollitia hic. -->
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-6 wow fadeInUp" data-wow-delay="0.2s">
+                <div class="team-item">
+                    <div class="team-img">
+                        <img src="{{ url_for('static', path='/img/Hung.png') }}" class="img-fluid rounded-top w-100" alt="">
+                        <div class="team-icon">
+                            <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href="https://www.facebook.com/hungmanh.hmh"><i class="fab fa-facebook-f"></i></a>
+                            <!-- <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-twitter"></i></a> -->
+                            <!-- <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-linkedin-in"></i></a> -->
+                            <a class="btn btn-primary btn-sm-square rounded-pill mb-0" href=""><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-title p-4">
+                        <h4 class="mb-0">Hoàng Mạnh Hùng</h4>
+                        <p class="mb-0">Member</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-6 wow fadeInUp" data-wow-delay="0.4s">
+                <div class="team-item">
+                    <div class="team-img">
+                        <img src="{{ url_for('static', path='/img/Chien.jpg') }}" class="img-fluid rounded-top w-100" alt="">
+                        <div class="team-icon">
+                            <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href="https://www.facebook.com/neihc5201"><i class="fab fa-facebook-f"></i></a>
+                            <!-- <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-twitter"></i></a> -->
+                            <!-- <a class="btn btn-primary btn-sm-square rounded-pill mb-2" href=""><i class="fab fa-linkedin-in"></i></a> -->
+                            <a class="btn btn-primary btn-sm-square rounded-pill mb-0" href="https://www.instagram.com/neihc5201/"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-title p-4">
+                        <h4 class="mb-0">Đào Duy Chiến</h4>
+                        <p class="mb-0">Member</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Team End -->
+
+<!-- Testimonial Start -->
+<!-- <div class="container-fluid testimonial pb-5">
+    <div class="container pb-5">
+        <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
+            <h4 class="text-primary">Testimonial</h4>
+            <h1 class="display-4 mb-4">What Our Customers Are Saying</h1> -->
+            <!-- <p class="mb-0">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tenetur adipisci facilis cupiditate recusandae aperiam temporibus corporis itaque quis facere, numquam, ad culpa deserunt sint dolorem autem obcaecati, ipsam mollitia hic. -->
+            <!-- </p> -->
+        <!-- </div>
+        <div class="owl-carousel testimonial-carousel wow fadeInUp" data-wow-delay="0.2s">
+            <div class="testimonial-item bg-light rounded">
+                <div class="row g-0">
+                    <div class="col-4  col-lg-4 col-xl-3">
+                        <div class="h-100">
+                            <img src="{{ url_for('static', path='/img/testimonial-1.jpg') }}" class="img-fluid h-100 rounded" style="object-fit: cover;" alt="">
+                        </div>
+                    </div>
+                    <div class="col-8 col-lg-8 col-xl-9">
+                        <div class="d-flex flex-column my-auto text-start p-4">
+                            <h4 class="text-dark mb-0">Client Name</h4>
+                            <p class="mb-3">Profession</p>
+                            <div class="d-flex text-primary mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="mb-0">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Enim error molestiae aut modi corrupti fugit eaque rem nulla incidunt temporibus quisquam,
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-item bg-light rounded">
+                <div class="row g-0">
+                    <div class="col-4  col-lg-4 col-xl-3">
+                        <div class="h-100">
+                            <img src="{{ url_for('static', path='/img/testimonial-2.jpg') }}" class="img-fluid h-100 rounded" style="object-fit: cover;" alt="">
+                        </div>
+                    </div>
+                    <div class="col-8 col-lg-8 col-xl-9">
+                        <div class="d-flex flex-column my-auto text-start p-4">
+                            <h4 class="text-dark mb-0">Client Name</h4>
+                            <p class="mb-3">Profession</p>
+                            <div class="d-flex text-primary mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star text-body"></i>
+                            </div>
+                            <p class="mb-0">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Enim error molestiae aut modi corrupti fugit eaque rem nulla incidunt temporibus quisquam,
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-item bg-light rounded">
+                <div class="row g-0">
+                    <div class="col-4  col-lg-4 col-xl-3">
+                        <div class="h-100">
+                            <img src="{{ url_for('static', path='/img/testimonial-3.jpg') }}" class="img-fluid h-100 rounded" style="object-fit: cover;" alt="">
+                        </div>
+                    </div>
+                    <div class="col-8 col-lg-8 col-xl-9">
+                        <div class="d-flex flex-column my-auto text-start p-4">
+                            <h4 class="text-dark mb-0">Client Name</h4>
+                            <p class="mb-3">Profession</p>
+                            <div class="d-flex text-primary mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star text-body"></i>
+                                <i class="fas fa-star text-body"></i>
+                            </div>
+                            <p class="mb-0">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Enim error molestiae aut modi corrupti fugit eaque rem nulla incidunt temporibus quisquam,
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
+<!-- Testimonial End -->
+
+
+{% endblock %}
+

@@ -1,0 +1,825 @@
+{% extends "admin/layout.html" %}
+
+{% block admin_title %}Manage Materials{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>All Materials</h4>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadTextureModal">
+        <i class="fas fa-plus me-2"></i> Add New Material
+    </button>
+</div>
+
+{% if success_message %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i> {{ success_message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+{% if error_message %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i> {{ error_message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<!-- Pending Publicity Section -->
+<div class="card mb-4">
+    <div class="card-header bg-warning text-white">
+        <h5 class="mb-0">Enterprise Materials Not Public</h5>
+    </div>
+    <div class="card-body">
+        {% if pending_materials %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Material</th>
+                        <th>Enterprise</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for material in pending_materials %}
+                    <tr>
+                        <td>{{ material.id }}</td>
+                        <td>
+                            {% if material.image_path %}
+                                {% if material.image_path.startswith('#') %}
+                                    <div style="width: 40px; height: 40px; background-color: {{ material.image_path }}; border-radius: 4px;"></div>
+                                {% else %}
+                                    <img src="{{ material.image_path }}" alt="{{ material.name }}" 
+                                        style="width: 50px; height: 50px; object-fit: cover;" 
+                                        class="rounded">
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td>{{ material.name }}</td>
+                        <td>{{ material.material|capitalize }}</td>
+                        <td>{{ material.enterprise_name }}</td>
+                        <td>{{ material.price_per_sqm }} per m²</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                {% if material.visible %}
+                                    <button class="btn btn-warning" onclick="toggleVisibility({{ material.id }}, false)">
+                                        <i class="fas fa-eye-slash"></i> Make Enterprise Only
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-primary" onclick="toggleVisibility({{ material.id }}, true)">
+                                        <i class="fas fa-globe"></i> Make Public
+                                    </button>
+                                {% endif %}
+                                
+                                <button class="btn btn-danger" onclick="rejectMaterial({{ material.id }})">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center my-3">No materials pending approval.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Pending Accessories Section -->
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Pending Accessories (Awaiting Approval)</h5>
+    </div>
+    <div class="card-body">
+        {% if pending_accessories %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Thumbnail</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Enterprise</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for accessory in pending_accessories %}
+                    <tr>
+                        <td>{{ accessory.id }}</td>
+                        <td>
+                            {% if accessory.thumbnail_path %}
+                                <img src="{{ accessory.thumbnail_path }}" alt="{{ accessory.name }}" 
+                                    style="width: 50px; height: 50px; object-fit: cover;" 
+                                    class="rounded">
+                            {% else %}
+                                <div style="width: 50px; height: 50px; background-color: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-cube text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ accessory.name }}</td>
+                        <td>{{ accessory.category|capitalize }}</td>
+                        <td>{{ accessory.enterprise.name if accessory.enterprise else 'Admin' }}</td>
+                        <td>${{ accessory.price }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-success" onclick="approveAccessory({{ accessory.id }}, true)">
+                                    <i class="fas fa-check"></i> Approve & Make Public
+                                </button>
+                                <button class="btn btn-warning" onclick="approveAccessory({{ accessory.id }}, false)">
+                                    <i class="fas fa-check"></i> Approve (Enterprise Only)
+                                </button>
+                                <button class="btn btn-danger" onclick="rejectAccessory({{ accessory.id }})">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center my-3">No accessories pending approval.</p>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- Materials Table -->
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Material</th>
+                <th>Price</th>
+                <th>Dimensions</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tile in tiles %}
+            <tr>
+                <td>{{ tile.id }}</td>
+                <td>
+                    <img src="{{ tile.image_path }}" alt="{{ tile.name }}" 
+                        style="width: 50px; height: 50px; object-fit: cover;" 
+                        class="rounded">
+                </td>
+                <td>{{ tile.name }}</td>
+                <td>{{ tile.material|capitalize }}</td>
+                <td>{{ tile.price_per_sqm }} per m²</td>
+                <td>
+                    {% if tile.width and tile.height %}
+                        {{ tile.width }} × {{ tile.height }} cm
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-dark" onclick="editMaterial({{ tile.id }})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteMaterial({{ tile.id }}, '{{ tile.name }}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- No materials message -->
+{% if tiles|length == 0 %}
+<div class="text-center my-5">
+    <p class="text-muted">No materials found.</p>
+    <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMaterialModal">
+        <i class="fas fa-plus"></i> Add New Material
+    </a>
+</div>
+{% else %}
+
+<!-- Accessories Table -->
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">All Accessories</h5>
+    </div>
+    <div class="card-body">
+        {% if accessories %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Thumbnail</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Enterprise</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for accessory in accessories %}
+                    <tr>
+                        <td>{{ accessory.id }}</td>
+                        <td>
+                            {% if accessory.thumbnail_path %}
+                                <img src="{{ accessory.thumbnail_path }}" alt="{{ accessory.name }}" 
+                                    style="width: 50px; height: 50px; object-fit: cover;" 
+                                    class="rounded">
+                            {% else %}
+                                <div style="width: 50px; height: 50px; background-color: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-cube text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ accessory.name }}</td>
+                        <td>{{ accessory.category|capitalize }}</td>
+                        <td>{{ accessory.enterprise.name if accessory.enterprise else 'Admin' }}</td>
+                        <td>${{ accessory.price }}</td>
+                        <td>
+                            {% if accessory.is_public %}
+                                <span class="badge bg-success">Public</span>
+                            {% elif accessory.is_approved %}
+                                <span class="badge bg-warning">Enterprise Only</span>
+                            {% else %}
+                                <span class="badge bg-danger">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                {% if accessory.is_public %}
+                                    <button class="btn btn-warning" onclick="toggleAccessoryPublic({{ accessory.id }})">
+                                        <i class="fas fa-eye-slash"></i> Make Enterprise Only
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-primary" onclick="toggleAccessoryPublic({{ accessory.id }})">
+                                        <i class="fas fa-globe"></i> Make Public
+                                    </button>
+                                {% endif %}
+                                
+                                <button class="btn btn-dark" onclick="editAccessory({{ accessory.id }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger" onclick="deleteAccessory({{ accessory.id }}, '{{ accessory.name }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center my-3">No accessories found.</p>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- Pagination -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page - 1 }}">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Previous</span>
+        </li>
+        {% endif %}
+        
+        {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {% if p == page %}active{% endif %}">
+            <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+        
+        {% if has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page + 1 }}">Next</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Next</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteMaterialName"></strong>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" action="/admin/materials/delete">
+                    <input type="hidden" id="deleteMaterialId" name="material_id">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Material Modal -->
+<div class="modal fade" id="uploadTextureModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Material</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="materialUploadForm" enctype="multipart/form-data" class="texture-upload-form" novalidate>
+                    <!-- Material Type Selection -->
+                    <div class="form-group mb-3">
+                        <select name="material" id="materialType" class="form-control" required>
+                        <option value="">Select Type</option>
+                        <option value="tile">Tile</option>
+                        <option value="wallpaper">Wallpaper</option>
+                        <!-- <option value="flooring">Flooring</option> -->
+                        <option value="paint">Paint</option>
+                        <option value="accessory">Accessory</option>
+                        </select>
+                    </div>
+
+                    <!-- Common Fields -->
+                    <div class="form-group">
+                        <input type="text" name="name" placeholder="Name" class="form-control" required>
+                    </div>
+
+                    <!-- Tile Specific Fields -->
+                    <div class="material-specific tile" style="display: none;">
+                        <div class="form-group mb-3">
+                        <label for="tile_width">Width (cm)</label>
+                        <input type="number" id="tile_width" name="tile_width" class="form-control">
+                        <div class="invalid-feedback">Width is required for tiles</div>
+                        </div>
+                        <div class="form-group mb-3">
+                        <label for="tile_height">Height (cm)</label>
+                        <input type="number" id="tile_height" name="tile_height" class="form-control">
+                        <div class="invalid-feedback">Height is required for tiles</div>
+                        </div>
+
+                        <!-- Add Material Composition field here for tile -->
+                        <div class="form-group mb-3">
+                        <label for="material_composition">Material Composition</label>
+                        <input type="text" name="material_composition" id="material_composition" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                        <select name="finish_type" class="form-control">
+                            <option value="">Select Finish</option>
+                            <option value="matte">Matte</option>
+                            <option value="glossy">Glossy</option>
+                            <option value="textured">Textured</option>
+                        </select>
+                        </div>
+                    </div>
+
+                    <!-- Wallpaper Specific Fields -->
+                    <div class="material-specific wallpaper" style="display: none;">
+                        <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Roll Width (cm)</label>
+                            <input type="number" id="wallpaper_width" name="wallpaper_width"
+                            class="form-control material-dimension" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Roll Length (cm)</label>
+                            <input type="number" id="wallpaper_height" name="wallpaper_height"
+                            class="form-control material-dimension" required>
+                        </div>
+                        </div>
+                    </div>
+
+                    <!-- Flooring Specific Fields  -->
+                    <div class="material-specific flooring" style="display: none;">
+                        <div class="form-row">
+                        <div class="form-group">
+                            <input type="number" id="flooring_width" name="flooring_width" placeholder="Width (cm)"
+                            class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <input type="number" id="flooring_height" name="flooring_height" placeholder="Length (cm)"
+                            class="form-control">
+                        </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                        <label for="material_composition">Material Composition</label>
+                        <input type="text" name="material_composition" id="material_composition" class="form-control">
+                        </div>
+                    </div>
+
+                    <!-- Paint Specific Fields -->
+                    <div class="material-specific paint" style="display: none;">
+                        <div class="form-group mb-3">
+                        <label for="paint_type">Paint Type</label>
+                        <select id="paint_type" name="paint_type" class="form-control">
+                            <option value="solid">Solid Color</option>
+                            <option value="textured">Textured Paint</option>
+                        </select>
+                        </div>
+
+                        <!-- Solid Paint Fields -->
+                        <div id="solid_paint_fields" class="paint-type-fields">
+                        <div class="form-group mb-3">
+                            <label for="color_code">Color Code (HEX)</label>
+                            <input type="color" id="color_code" name="color_code" class="form-control">
+                            <div id="color-preview"
+                            style="margin-top: 10px; width: 50px; height: 50px; border: 1px solid #ccc;"></div>
+                            <span id="hex-display" style="display: block; margin-top: 5px;"></span>
+                        </div>
+                        </div>
+
+                        <!-- Textured Paint Fields -->
+                        <div id="textured_paint_fields" class="paint-type-fields" style="display: none;">
+                        <div class="form-group mb-3">
+                            <label for="paint_image">Paint Texture Image</label>
+                            <input type="file" id="paint_image" name="image" accept="image/*" class="form-control">
+                        </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                        <label for="paint_finish">Paint Finish</label>
+                        <select id="paint_finish" name="paint_finish" class="form-control">
+                            <option value="">Select Paint Finish</option>
+                            <option value="matte">Matte</option>
+                            <option value="eggshell">Eggshell</option>
+                            <option value="satin">Satin</option>
+                            <option value="semi-gloss">Semi-Gloss</option>
+                            <option value="gloss">Gloss</option>
+                            <option value="gloss">Effects</option>
+                        </select>
+                        </div>
+                    </div>
+
+                    <!-- Accessory Specific Fields -->
+                    <div class="material-specific accessory" style="display: none;">
+                        <!-- Category -->
+                        <div class="form-group mb-3">
+                        <label for="accessory_category">Category</label>
+                        <select name="category" class="form-control" required>
+                            <option value="">Select Category</option>
+                            {% for category in accessory_categories %}
+                            <option value="{{ category.name }}">{{ category.display_name }}</option>
+                            {% endfor %}
+                        </select>
+
+                        </div>
+                        
+                        <!-- 3D Model File -->
+                        <div class="form-group mb-3">
+                        <label for="model_file">3D Model File</label>
+                        <input type="file" id="model_file" name="model_file" accept=".obj,.gltf,.glb" class="form-control" required>
+                        <small class="form-text text-muted">Supported: .obj, .gltf, .glb</small>
+                        </div>
+                        
+                        <!-- Dimensions -->
+                        <div class="form-group mb-3">
+                        <label>Dimensions (cm)</label>
+                        <div class="row">
+                            <div class="col-4">
+                            <input type="number" step="0.1" name="length_cm" placeholder="Length" class="form-control" required>
+                            </div>
+                            <div class="col-4">
+                            <input type="number" step="0.1" name="width_cm" placeholder="Width" class="form-control" required>
+                            </div>
+                            <div class="col-4">
+                            <input type="number" step="0.1" name="height_cm" placeholder="Height" class="form-control" required>
+                            </div>
+                        </div>
+                        </div>
+                        
+                        <!-- Volume (auto-calculated + manual override) -->
+                        <div class="form-group mb-3">
+                        <label for="volume_liters">Volume (Liters)</label>
+                        <input type="number" step="0.1" name="volume_liters" class="form-control" placeholder="Auto-calculated or enter manually">
+                        <small class="form-text text-muted">Leave empty for auto-calculation from dimensions</small>
+                        </div>
+                        
+                        <!-- Weight -->
+                        <div class="form-group mb-3">
+                        <label for="weight_kg">Weight (kg)</label>
+                        <input type="number" step="0.1" name="weight_kg" class="form-control">
+                        </div>
+                        
+                        <!-- Material Type -->
+                        <div class="form-group mb-3">
+                        <label for="material_type">Material Type</label>
+                        <input type="text" name="material_type" class="form-control" placeholder="e.g., Ceramic, Metal, Glass">
+                        </div>
+                        
+                        <!-- Colors -->
+                        <div class="form-group mb-3">
+                        <label for="default_color">Default Color</label>
+                        <input type="color" name="default_color" class="form-control" value="#FFFFFF" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                        <label>Additional Colors (Optional)</label>
+                        <div id="color-picker-container">
+                            <div class="color-input-group mb-2">
+                            <input type="color" name="additional_colors[]" class="form-control" style="width: 60px; display: inline-block;">
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeColorInput(this)">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addColorInput()">Add Color</button>
+                        </div>
+                        
+                        <!-- Installation Difficulty -->
+                        <div class="form-group mb-3">
+                        <label for="installation_difficulty">Installation Difficulty</label>
+                        <select name="installation_difficulty" class="form-control" required>
+                            <option value="">Select Difficulty</option>
+                            <option value="easy">Easy (Self install)</option>
+                            <option value="medium">Medium (Self with manual or professional)</option>
+                            <option value="hard">Hard (Needs professional installer)</option>
+                            <option value="very_hard">Very Hard (Licensed professional required)</option>
+                        </select>
+                        </div>
+                        
+                        <!-- Style Category -->
+                        <div class="form-group mb-3">
+                        <label for="style_category">Style Category</label>
+                        <select name="style_category" class="form-control">
+                            <option value="">Select Style</option>
+                            <option value="modern">Modern</option>
+                            <option value="traditional">Traditional</option>
+                            <option value="minimalist">Minimalist</option>
+                            <option value="industrial">Industrial</option>
+                            <option value="rustic">Rustic</option>
+                            <option value="contemporary">Contemporary</option>
+                            <option value="scandinavian">Scandinavian</option>
+                            <option value="art_deco">Art Deco</option>
+                        </select>
+                        </div>
+                        
+                        <!-- Thumbnail Image -->
+                        <div class="form-group mb-3">
+                        <label for="thumbnail_image">Thumbnail Image</label>
+                        <input type="file" name="thumbnail_image" accept="image/*" class="form-control">
+                        <small class="form-text text-muted">Preview image for the accessory</small>
+                        </div>
+                    </div>
+
+
+                    <!-- Common Fields -->
+                    <div class="form-group">
+                        <input type="number" step="0.1" name="price_per_sqm" placeholder="Price per m²" class="form-control price-input" required>
+                        <!-- <label class="price-label">Price per m²</label> -->
+                    </div>
+
+
+                    <div class="form-group">
+                        <input type="text" name="manufacturer" placeholder="Manufacturer" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <textarea name="description" placeholder="Description" class="form-control" required></textarea>
+                    </div>
+
+                    <!-- Image upload for all except paint -->
+                    <div class="form-group non-paint-field non-accessory-field">
+                        <label class="file-upload">
+                        <input type="file" name="image" accept="image/*">
+                        <span>Choose Image</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Upload Material</button>
+                    </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Material Approval Actions -->
+<script>
+    function deleteMaterial(id, name) {
+        document.getElementById('deleteMaterialName').textContent = name;
+        document.getElementById('deleteMaterialId').value = id;
+        
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+    
+    function editMaterial(id) {
+        window.location.href = `/admin/materials/edit/${id}`;
+    }
+
+    function toggleVisibility(id, makePublic) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/admin/materials/toggle-visibility/${id}`;
+    
+    const publicInput = document.createElement('input');
+    publicInput.type = 'hidden';
+    publicInput.name = 'make_public';
+    publicInput.value = makePublic ? 'true' : 'false';
+    form.appendChild(publicInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+    
+    function approveMaterial(id, makePublic) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/materials/approve/${id}`;
+        
+        const publicInput = document.createElement('input');
+        publicInput.type = 'hidden';
+        publicInput.name = 'make_public';
+        publicInput.value = 'true';
+        form.appendChild(publicInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    function rejectMaterial(id) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/materials/reject/${id}`;
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize material type selector
+        const materialTypeSelect = document.getElementById('materialType');
+        if (materialTypeSelect) {
+            materialTypeSelect.addEventListener('change', function() {
+                // Hide all material-specific divs first
+                document.querySelectorAll('.material-specific').forEach(div => {
+                    div.style.display = 'none';
+                });
+                
+                // Show the selected material's fields
+                const selectedMaterial = this.value;
+                if (selectedMaterial) {
+                    const materialDiv = document.querySelector(`.material-specific.${selectedMaterial}`);
+                    if (materialDiv) {
+                        materialDiv.style.display = 'block';
+                    }
+                }
+                
+                // Handle paint and accessory-specific logic
+                const nonPaintFields = document.querySelectorAll('.non-paint-field');
+                const nonAccessoryFields = document.querySelectorAll('.non-accessory-field');
+                
+                if (selectedMaterial === 'paint') {
+                    nonPaintFields.forEach(field => field.style.display = 'none');
+                    
+                    // Setup paint type toggle
+                    const paintTypeSelect = document.getElementById('paint_type');
+                    if (paintTypeSelect) {
+                        paintTypeSelect.dispatchEvent(new Event('change'));
+                    }
+                } else if (selectedMaterial === 'accessory') {
+                    nonAccessoryFields.forEach(field => field.style.display = 'none');
+                } else {
+                    nonPaintFields.forEach(field => field.style.display = 'block');
+                    nonAccessoryFields.forEach(field => field.style.display = 'block');
+                }
+            });
+        }
+        
+        // Handle paint type selection
+        const paintTypeSelect = document.getElementById('paint_type');
+        if (paintTypeSelect) {
+            paintTypeSelect.addEventListener('change', function() {
+                // Hide all paint type fields
+                document.querySelectorAll('.paint-type-fields').forEach(div => {
+                    div.style.display = 'none';
+                });
+                
+                // Show the selected paint type fields
+                if (this.value === 'solid') {
+                    document.getElementById('solid_paint_fields').style.display = 'block';
+                } else if (this.value === 'textured') {
+                    document.getElementById('textured_paint_fields').style.display = 'block';
+                }
+            });
+        }
+        
+        // Color picker preview
+        const colorPicker = document.getElementById('color_code');
+        if (colorPicker) {
+            colorPicker.addEventListener('input', function() {
+                const colorPreview = document.getElementById('color-preview');
+                const hexDisplay = document.getElementById('hex-display');
+                
+                if (colorPreview && hexDisplay) {
+                    colorPreview.style.backgroundColor = this.value;
+                    hexDisplay.textContent = this.value;
+                }
+            });
+        }
+    });
+
+    // Accessory management functions
+    function approveAccessory(id, makePublic) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/accessories/approve/${id}`;
+        
+        const publicInput = document.createElement('input');
+        publicInput.type = 'hidden';
+        publicInput.name = 'make_public';
+        publicInput.value = makePublic ? 'true' : 'false';
+        form.appendChild(publicInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    function rejectAccessory(id) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/accessories/reject/${id}`;
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    function toggleAccessoryPublic(id) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/accessories/toggle-public/${id}`;
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    function editAccessory(id) {
+        window.location.href = `/admin/accessories/edit/${id}`;
+    }
+    
+    function deleteAccessory(id, name) {
+        if (confirm(`Are you sure you want to delete "${name}"?`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/accessories/delete`;
+            
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'accessory_id';
+            idInput.value = id;
+            form.appendChild(idInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+    // Add these functions for admin color management
+    function addAdminColorInput() {
+        const container = document.getElementById('admin-color-picker-container');
+        const colorInputGroup = document.createElement('div');
+        colorInputGroup.className = 'color-input-group mb-2';
+        colorInputGroup.innerHTML = `
+            <input type="color" name="additional_colors[]" class="form-control" style="width: 60px; display: inline-block;">
+            <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeAdminColorInput(this)">Remove</button>
+        `;
+        container.appendChild(colorInputGroup);
+    }
+
+    function removeAdminColorInput(button) {
+        button.parentElement.remove();
+    }
+
+</script>
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Accessory - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Edit Accessory: {{ accessory.name }}</h3>
+                    <div class="card-tools">
+                        <a href="/admin/materials" class="btn btn-dark">
+                            <i class="fas fa-arrow-left"></i> Back to Materials
+                        </a>
+                    </div>
+                </div>
+                
+                <form method="post" enctype="multipart/form-data">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Basic Information -->
+                            <div class="col-md-6">
+                                <h5>Basic Information</h5>
+                                
+                                <div class="form-group">
+                                    <label for="name">Name *</label>
+                                    <input type="text" class="form-control" id="name" name="name" 
+                                           value="{{ accessory.name }}" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="category_id">Category *</label>
+                                    <select class="form-control" id="category_id" name="category_id" required>
+                                        <option value="">Select Category</option>
+                                        {% for category in accessory_categories %}
+                                        <option value="{{ category.id }}" 
+                                                {% if accessory.category_id == category.id %}selected{% endif %}>
+                                            {{ category.display_name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+
+                                
+                                <div class="form-group">
+                                    <label for="manufacturer">Manufacturer *</label>
+                                    <input type="text" class="form-control" id="manufacturer" name="manufacturer" 
+                                           value="{{ accessory.manufacturer }}" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="description">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3">{{ accessory.description or '' }}</textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="price">Price *</label>
+                                    <input type="number" step="0.01" class="form-control" id="price" name="price" 
+                                           value="{{ accessory.price }}" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Dimensions and Properties -->
+                            <div class="col-md-6">
+                                <h5>Dimensions and Properties</h5>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="length_cm">Length (cm) *</label>
+                                            <input type="number" step="0.1" class="form-control" id="length_cm" name="length_cm" 
+                                                   value="{{ accessory.length_cm }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="width_cm">Width (cm) *</label>
+                                            <input type="number" step="0.1" class="form-control" id="width_cm" name="width_cm" 
+                                                   value="{{ accessory.width_cm }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="height_cm">Height (cm) *</label>
+                                            <input type="number" step="0.1" class="form-control" id="height_cm" name="height_cm" 
+                                                   value="{{ accessory.height_cm }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="volume_liters">Volume (liters)</label>
+                                            <input type="number" step="0.1" class="form-control" id="volume_liters" name="volume_liters" 
+                                                   value="{{ accessory.volume_liters or '' }}">
+                                            <small class="form-text text-muted">Leave empty to auto-calculate</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="weight_kg">Weight (kg)</label>
+                                            <input type="number" step="0.1" class="form-control" id="weight_kg" name="weight_kg" 
+                                                   value="{{ accessory.weight_kg or '' }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="material_type">Material Type</label>
+                                    <input type="text" class="form-control" id="material_type" name="material_type" 
+                                           value="{{ accessory.material_type or '' }}" placeholder="e.g., Ceramic, Metal, Wood">
+                                </div>
+                                
+                                <!-- Colors Section -->
+                                <div class="form-group">
+                                    <label for="default_color">Default Color *</label>
+                                    <input type="color" class="form-control" id="default_color" name="default_color" 
+                                           value="{{ accessory.default_color }}" required style="height: 40px;">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Additional Colors (Optional)</label>
+                                    <div id="color-picker-container">
+                                        {% if accessory.available_colors and accessory.available_colors|length > 1 %}
+                                            {% for color in accessory.available_colors %}
+                                                {% if color != accessory.default_color %}
+                                                <div class="color-input-group mb-2">
+                                                    <input type="color" name="additional_colors[]" class="form-control" 
+                                                           value="{{ color }}" style="width: 60px; display: inline-block; height: 40px;">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeColorInput(this)">Remove</button>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addColorInput()">Add Color</button>
+                                </div>
+
+                                
+                                <div class="form-group">
+                                    <label for="installation_difficulty">Installation Difficulty *</label>
+                                    <select class="form-control" id="installation_difficulty" name="installation_difficulty" required>
+                                        <option value="easy" {% if accessory.installation_difficulty == 'easy' %}selected{% endif %}>Easy</option>
+                                        <option value="medium" {% if accessory.installation_difficulty == 'medium' %}selected{% endif %}>Medium</option>
+                                        <option value="hard" {% if accessory.installation_difficulty == 'hard' %}selected{% endif %}>Hard</option>
+                                        <option value="professional" {% if accessory.installation_difficulty == 'professional' %}selected{% endif %}>Professional Required</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="style_category">Style Category</label>
+                                    <select class="form-control" id="style_category" name="style_category">
+                                        <option value="">Select Style</option>
+                                        <option value="modern" {% if accessory.style_category == 'modern' %}selected{% endif %}>Modern</option>
+                                        <option value="traditional" {% if accessory.style_category == 'traditional' %}selected{% endif %}>Traditional</option>
+                                        <option value="minimalist" {% if accessory.style_category == 'minimalist' %}selected{% endif %}>Minimalist</option>
+                                        <option value="industrial" {% if accessory.style_category == 'industrial' %}selected{% endif %}>Industrial</option>
+                                        <option value="rustic" {% if accessory.style_category == 'rustic' %}selected{% endif %}>Rustic</option>
+                                        <option value="contemporary" {% if accessory.style_category == 'contemporary' %}selected{% endif %}>Contemporary</option>
+                                        <option value="scandinavian" {% if accessory.style_category == 'scandinavian' %}selected{% endif %}>Scandinavian</option>
+                                        <option value="art_deco" {% if accessory.style_category == 'art_deco' %}selected{% endif %}>Art Deco</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                                                <!-- Enterprise and Visibility Settings -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Enterprise Settings</h5>
+                                
+                                <div class="form-group">
+                                    <label for="enterprise_id">Enterprise</label>
+                                    <select class="form-control" id="enterprise_id" name="enterprise_id">
+                                        <option value="">No Enterprise (Admin)</option>
+                                        {% for enterprise in enterprises %}
+                                        <option value="{{ enterprise.id }}" 
+                                                {% if accessory.enterprise_id == enterprise.id %}selected{% endif %}>
+                                            {{ enterprise.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="is_approved" name="is_approved" 
+                                               {% if accessory.is_approved %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_approved">
+                                            Approved
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="is_public" name="is_public" 
+                                               {% if accessory.is_public %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_public">
+                                            Public (visible on RoomFlux)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- File Uploads -->
+                            <div class="col-md-6">
+                                <h5>Files</h5>
+                                
+                                <div class="form-group">
+                                    <label for="model_file">3D Model File</label>
+                                    <input type="file" class="form-control-file" id="model_file" name="model_file" 
+                                           accept=".glb,.gltf,.obj,.fbx">
+                                    {% if accessory.model_path %}
+                                    <small class="form-text text-muted">
+                                        Current: {{ accessory.model_path.split('/')[-1] }}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="thumbnail_image">Thumbnail Image</label>
+                                    <input type="file" class="form-control-file" id="thumbnail_image" name="thumbnail_image" 
+                                           accept="image/*">
+                                    {% if accessory.thumbnail_path %}
+                                    <div class="mt-2">
+                                        <img src="{{ accessory.thumbnail_path }}" alt="Current thumbnail" 
+                                             style="max-width: 100px; max-height: 100px; object-fit: cover;" 
+                                             class="img-thumbnail">
+                                        <small class="form-text text-muted d-block">Current thumbnail</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Accessory
+                        </button>
+                        <a href="/admin/materials" class="btn btn-dark">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-calculate volume when dimensions change
+document.addEventListener('DOMContentLoaded', function() {
+    const lengthInput = document.getElementById('length_cm');
+    const widthInput = document.getElementById('width_cm');
+    const heightInput = document.getElementById('height_cm');
+    const volumeInput = document.getElementById('volume_liters');
+    
+    function calculateVolume() {
+        const length = parseFloat(lengthInput.value) || 0;
+        const width = parseFloat(widthInput.value) || 0;
+        const height = parseFloat(heightInput.value) || 0;
+        
+        if (length > 0 && width > 0 && height > 0) {
+            const volumeLiters = (length * width * height) / 1000; // Convert cm³ to liters
+            volumeInput.placeholder = `Auto: ${volumeLiters.toFixed(2)} L`;
+        }
+    }
+    
+    lengthInput.addEventListener('input', calculateVolume);
+    widthInput.addEventListener('input', calculateVolume);
+    heightInput.addEventListener('input', calculateVolume);
+    
+    // Calculate on page load
+    calculateVolume();
+});
+
+// Color management functions (same as in the creation modal)
+function addColorInput() {
+    const container = document.getElementById('color-picker-container');
+    const colorInputGroup = document.createElement('div');
+    colorInputGroup.className = 'color-input-group mb-2';
+    colorInputGroup.innerHTML = `
+        <input type="color" name="additional_colors[]" class="form-control" style="width: 60px; display: inline-block; height: 40px;">
+        <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeColorInput(this)">Remove</button>
+    `;
+    container.appendChild(colorInputGroup);
+}
+
+function removeColorInput(button) {
+    button.parentElement.remove();
+}
+</script>
+
+{% endblock %}
+

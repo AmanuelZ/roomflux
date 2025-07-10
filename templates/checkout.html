@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Checkout</h1>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Shipping Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Shipping Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if shipping_addresses %}
+                        <div class="mb-3">
+                            <label for="shipping-address" class="form-label">Select a shipping address</label>
+                            <select class="form-select" id="shipping-address">
+                                {% for address in shipping_addresses %}
+                                    <option value="{{ address.id }}" {% if address.is_default %}selected{% endif %}>
+                                        {{ address.full_name }}, {{ address.address_line1 }}, {{ address.city }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#newAddressModal">
+                            Add New Address
+                        </button>
+                    {% else %}
+                        <div class="alert alert-info mb-3">
+                            You don't have any saved addresses. Please add one below.
+                        </div>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newAddressModal">
+                            Add Shipping Address
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Payment Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Payment Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="payment-method" class="form-label">Payment Method</label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment-method" id="telebirr" value="telebirr">
+                            <label class="form-check-label" for="telebirr">
+                                <img src="/static/IMG/telebirr-logo.png" alt="Telebirr" height="50" class="me-2">
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment-method" id="cod" value="cod" checked>
+                            <label class="form-check-label" for="cod">
+                                Cash on Delivery
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="telebirr-fields" class="mb-3" style="display: none;">
+                        <label for="phone-number" class="form-label">Phone Number (for Telebirr)</label>
+                        <input type="tel" class="form-control" id="phone-number" placeholder="e.g., 0911234567">
+                        <div class="form-text">Enter the phone number registered with your Telebirr account.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Order Summary -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        {% for item in cart_items %}
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>{{ item.name }} x {{ item.quantity }}</span>
+                                <span>{{ item.subtotal|round(2) }} Br</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span>{{ total|round(2) }} Br</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping:</span>
+                        <span>Calculated after checkout</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-0 fw-bold">
+                        <span>Total:</span>
+                        <span>{{ total|round(2) }} Br</span>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <button id="place-order-btn" class="btn btn-success">
+                            Place Order
+                        </button>
+                        <a href="/cart" class="btn btn-outline-dark">
+                            Back to Cart
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Address Modal -->
+<div class="modal fade" id="newAddressModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="new-address-form">
+                    <div class="mb-3">
+                        <label for="full-name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="full-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address-line1" class="form-label">Address Line 1</label>
+                        <input type="text" class="form-control" id="address-line1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address-line2" class="form-label">Address Line 2 (Optional)</label>
+                        <input type="text" class="form-control" id="address-line2">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" required>
+                        </div>
+                        <div class="col">
+                            <label for="state" class="form-label">State/Region</label>
+                            <input type="text" class="form-control" id="state" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="postal-code" class="form-label">Postal Code</label>
+                        <input type="text" class="form-control" id="postal-code" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="phone" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is-default">
+                        <label class="form-check-label" for="is-default">Set as default address</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-address-btn">Save Address</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Processing Payment Modal -->
+<div class="modal fade" id="processingPaymentModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5>Processing Your Order</h5>
+                <p class="mb-0">Please wait while we process your payment...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up event listeners
+        document.getElementById('place-order-btn').addEventListener('click', placeOrder);
+        document.getElementById('save-address-btn').addEventListener('click', saveAddress);
+        
+        // Set up payment method toggle
+        const telebirrRadio = document.getElementById('telebirr');
+        const codRadio = document.getElementById('cod');
+        const telebirrFields = document.getElementById('telebirr-fields');
+        
+        telebirrRadio.addEventListener('change', function() {
+            telebirrFields.style.display = this.checked ? 'block' : 'none';
+        });
+        
+        codRadio.addEventListener('change', function() {
+            telebirrFields.style.display = this.checked ? 'none' : 'block';
+        });
+    });
+    
+    // Function to place order
+    function placeOrder() {
+        const shippingAddressId = document.getElementById('shipping-address')?.value;
+        const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+        const phoneNumber = document.getElementById('phone-number')?.value || '';
+        
+        // Validate inputs
+        if (!shippingAddressId) {
+            alert('Please select or add a shipping address');
+            return;
+        }
+        
+        if (paymentMethod === 'telebirr' && !phoneNumber) {
+            alert('Please enter your phone number for Telebirr payment');
+            return;
+        }
+        
+        // Show processing modal
+        const processingModal = new bootstrap.Modal(document.getElementById('processingPaymentModal'));
+        processingModal.show();
+        
+        // Send checkout request
+        fetch('/api/checkout/process', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                shipping_address_id: parseInt(shippingAddressId),
+                payment_method: paymentMethod,
+                phone_number: phoneNumber
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Checkout failed');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Hide processing modal
+            processingModal.hide();
+            
+            if (paymentMethod === 'telebirr') {
+                // Redirect to Telebirr payment page if using Telebirr
+                if (data.payment_url) {
+                    window.location.href = data.payment_url;
+                } else {
+                    alert('Telebirr payment initiation failed. Please try Cash on Delivery instead.');
+                }
+            } else {
+                // For Cash on Delivery, redirect to success page
+                window.location.href = `/orders/${data.order_id}`;
+            }
+        })
+        .catch(error => {
+            // Hide processing modal
+            processingModal.hide();
+            
+            console.error('Error during checkout:', error);
+            alert('Checkout failed. Please try again.');
+        });
+    }
+    
+    // Function to save a new address
+    function saveAddress() {
+        const fullName = document.getElementById('full-name').value;
+        const addressLine1 = document.getElementById('address-line1').value;
+        const addressLine2 = document.getElementById('address-line2').value;
+        const city = document.getElementById('city').value;
+        const state = document.getElementById('state').value;
+        const postalCode = document.getElementById('postal-code').value;
+        const phone = document.getElementById('phone').value;
+        const isDefault = document.getElementById('is-default').checked;
+        
+        // Validate required fields
+        if (!fullName || !addressLine1 || !city || !state || !postalCode || !phone) {
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        // Send request to add address
+        fetch('/api/shipping/addresses', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                full_name: fullName,
+                address_line1: addressLine1,
+                address_line2: addressLine2,
+                city: city,
+                state: state,
+                postal_code: postalCode,
+                phone: phone,
+                is_default: isDefault
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to add address');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('newAddressModal')).hide();
+            
+            // Reload page to show new address
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error adding address:', error);
+            alert('Failed to add address. Please try again.');
+        });
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,101 @@
+<!-- Footer Start -->
+<div class="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.2s">
+    <div class="container py-5">
+        <div class="row g-5">
+            <div class="col-xl-9">
+                <div class="mb-5">
+                    <div class="row g-4">
+                        <div class="col-md-6 col-lg-6 col-xl-5">
+                            <div class="footer-item">
+                                <a href="" class="p-0">
+                                    <h3 class="d-flex align-items-center" style="color: #e97537;">
+                                        {% if enterprise and enterprise.logo_path %}
+                                            <img src="{{ enterprise.logo_path }}" style="filter: drop-shadow(2px 4px 6px black); height: 3em; margin-right: 0.2em;" alt="{{ enterprise.name }}">
+                                        {% else %}
+                                            <img src="{{ url_for('static', path='img/brand/Room-Flux-Logo-White.png') }}" style="height: 3em; margin-right: 0.2em;" alt="Logo">
+                                        {% endif %}
+                                    </h3>                                                                        
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-5" style="border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div class="row g-0">
+                        <div class="col-12">
+                            <div class="row g-4">
+                                <div class="col-lg-6 col-xl-4">
+                                    <div class="d-flex">
+                                        <div class="btn-xl-square bg-primary text-white rounded p-4 me-4">
+                                            <i class="fas fa-map-marker-alt fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-white">Address</h4>
+                                            {% if enterprise and enterprise.address %}
+                                                <p class="mb-0">{{ enterprise.address }}</p>
+                                            {% else %}
+                                                <p class="mb-0">Former 24 Kebele, Biemnet Bldg, 5th Floor, Addis Ababa, Ethiopia </p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-xl-4">
+                                    <div class="d-flex">
+                                        <div class="btn-xl-square bg-primary text-white rounded p-4 me-4">
+                                            <i class="fas fa-envelope fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-white">Mail Us</h4>
+                                            {% if enterprise and enterprise.contact_email %}
+                                                <p class="mb-0">{{ enterprise.contact_email }}</p>
+                                            {% else %}
+                                                <p class="mb-0">contact@roomflux.com</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-xl-4">
+                                    <div class="d-flex">
+                                        <div class="btn-xl-square bg-primary text-white rounded p-4 me-4">
+                                            <i class="fa fa-phone-alt fa-2x"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-white">Telephone</h4>
+                                            {% if enterprise and enterprise.phone %}
+                                                <p class="mb-0">{{ enterprise.phone }}</p>
+                                            {% else %}
+                                                <p class="mb-0">+251-931-313-758</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3">
+                <div class="footer-item">
+                    {% if not enterprise %}
+                    <div class="d-flex flex-shrink-0">
+                        <div class="footer-btn">
+                            <a href="#" class="btn btn-lg-square rounded-circle position-relative wow tada" data-wow-delay=".9s">
+                                <i class="fa fa-phone-alt fa-2x"></i>
+                                <div class="position-absolute" style="top: 2px; right: 12px;">
+                                    <span><i class="fa fa-comment-dots text-dark"></i></span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="d-flex flex-column ms-3 flex-shrink-0">
+                            <span>Call to Our Experts</span>
+                            <a href="tel:+251931313758"><span class="text-white">+251-931-313-758</span></a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Footer End -->

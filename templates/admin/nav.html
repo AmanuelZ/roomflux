@@ -1,0 +1,130 @@
+<!-- Debug: User = {{ user|default('Not logged in') }} -->
+<!-- Navbar & Hero Start -->
+<div class="container-fluid nav-bar px-0 px-lg-4 py-lg-0">
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light"> 
+            <a href="/" class="navbar-brand p-0">
+                <h1 class="text-dark mb-0">
+                <img src="{{ url_for('static', path='img/brand/Room-Flux-Logo.png') }}"></h1>
+                <!-- <img src="static/img/HIT.jpg" alt="Logo"> -->
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="fa fa-bars"></span>
+            </button>
+            <!-- <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav mx-0 mx-lg-auto">
+                    <a href="#" class="nav-item nav-link active">Home</a>
+                    <a href="#" class="nav-item nav-link">About</a>
+                    <a href="#" class="nav-item nav-link">Services</a>
+                    <a href="#" class="nav-item nav-link">Blog</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link" data-bs-toggle="dropdown">
+                            <span class="dropdown-toggle">Pages</span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a href="#" class="dropdown-item">Our Features</a>
+                            <a href="#" class="dropdown-item">Our team</a>
+                            <a href="#" class="dropdown-item">Testimonial</a>
+                            <a href="#" class="dropdown-item">FAQs</a>
+                            <a href="#" class="dropdown-item">404 Page</a>
+                        </div>
+                    </div>
+                    <a href="contact.html" class="nav-item nav-link">Contact</a>
+                </div>
+            </div> -->
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav mx-auto">
+                    <a href="/" class="nav-item nav-link {% if request.url.path == '/' %}active{% endif %}">Home</a>
+                    <a href="{{ url_for('room_visualization_index') }}" class="nav-item nav-link" id="ai-visualizer-nav-link">AI Visualizer</a>
+                    <a href="{{ url_for('room_visualization_index') }}#3d-visualizer" class="nav-item nav-link" id="3d-visualizer-nav-link">3D Visualizer</a>
+                    
+                    {% if user and user.has_role('superadmin') %}
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Admin</a>
+                        <div class="dropdown-menu rounded-0 m-0">
+                            <a href="/admin/materials" class="dropdown-item">Manage Materials</a>
+                            <a href="/admin/users" class="dropdown-item">Manage Users</a>
+                            <a href="/admin/orders" class="dropdown-item">Manage Orders</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user and enterprise %}
+                        {% if user.has_role('superadmin') 
+                        or (enterprise_user and enterprise_user.role == 'admin') %}
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fas fa-building mr-1"></i> Enterprise Admin
+                            </a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <h6 class="dropdown-header">Enterprise Management</h6>
+                                <a href="/enterprise/settings" class="dropdown-item">
+                                    <i class="fas fa-cog mr-2"></i> Enterprise Settings
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                
+                                <h6 class="dropdown-header">Content Management</h6>
+                                <a href="/enterprise/materials" class="dropdown-item">
+                                    <i class="fas fa-boxes mr-2"></i> Manage Materials
+                                </a>
+                                <a href="/enterprise/sample-rooms" class="dropdown-item">
+                                    <i class="fas fa-image mr-2"></i> Sample Rooms
+                                </a>
+                                <a href="/enterprise/3d-rooms" class="dropdown-item">
+                                    <i class="fas fa-cube"></i> 3D Rooms
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                
+                                <h6 class="dropdown-header">User Management</h6>
+                                <a href="/enterprise/users" class="dropdown-item">
+                                    <i class="fas fa-users mr-2"></i> Manage Users
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex align-items-center">
+                    {% if user %}
+                    <!-- Add cart button before the user dropdown -->
+                    <a href="/cart" class="nav-link position-relative me-3">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; display: none;">
+                            0
+                        </span>
+                    </a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-user-circle me-2"></i>{{ user.username }}
+                        </a>
+                        <div class="dropdown-menu rounded-0 m-0">
+                            <a href="/profile" class="dropdown-item">My Profile</a>
+                            <a href="/my_projects" class="dropdown-item">My Projects</a>
+                            <a href="/orders" class="dropdown-item">My Orders</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="nav-link" href="{{ url_for('logout') }}">Logout ({{ user.username }})</a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <a class="nav-link" href="{{ url_for('login_page') }}">Login</a>
+                    <a href="{{ url_for('register_page') }}" class="btn btn-primary">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-none d-xl-flex flex-shrink-0 ps-4">
+                <a href="#" class="btn btn-light btn-lg-square rounded-circle position-relative wow tada" data-wow-delay=".9s">
+                    <i class="fa fa-phone-alt fa-2x"></i>
+                    <div class="position-absolute" style="top: 7px; right: 12px;">
+                        <span><i class="fa fa-comment-dots text-dark"></i></span>
+                    </div>
+                </a>
+                <div class="d-flex flex-column ms-3">
+                    <span>Call to Our Experts</span>
+                    <a href="tel:+251931313758"><span class="text-dark">+251-931-313-758</span></a>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>
+<!-- Navbar & Hero End -->

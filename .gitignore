@@ -1,0 +1,8 @@
+﻿static/
+wall_estimation/
+wall_segmentation/
+models/
+venv/
+__pycache__/
+*.pyc
+*.db

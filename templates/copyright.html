@@ -1,0 +1,19 @@
+<!-- Copyright Start -->
+<div class="container-fluid copyright py-4">
+    <div class="container">
+        <div class="row g-4 align-items-center">
+            <div class="col-md-6 text-center text-md-end mb-md-0">
+                <span class="text-body">
+                    <a href="{% if enterprise and enterprise.website %}{{ enterprise.website }}{% else %}https://yanosgroup.com{% endif %}" class="border-bottom text-white">
+                        <i class="fas fa-copyright text-light me-1"></i>
+                        {% if enterprise %}{{ enterprise.name }}{% else %}RoomFlux{% endif %}
+                    </a>, All right reserved.
+                </span>
+            </div>
+            <div class="col-md-6 text-center text-md-start text-body">
+                By <a class="border-bottom text-white" href="https://yanosgroup.com">Yanos Group</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Copyright End -->

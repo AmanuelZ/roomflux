@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>{% if enterprise %}Edit{% else %}New{% endif %} Enterprise</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/admin/enterprises" class="btn btn-dark">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Enterprise Name</label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               value="{{ enterprise.name if enterprise else '' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="contact_email" class="form-label">Contact Email</label>
+                        <input type="email" class="form-control" id="contact_email" name="contact_email"
+                               value="{{ enterprise.contact_email if enterprise else '' }}">
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="subdomain" class="form-label">Subdomain</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="subdomain" name="subdomain"
+                                   value="{{ enterprise.subdomain if enterprise else '' }}" required>
+                            <span class="input-group-text">.roomflux.com</span>
+                        </div>
+                        <div class="form-text">Only lowercase letters, numbers, and hyphens. No spaces.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="custom_domain" class="form-label">Custom Domain (Optional)</label>
+                        <input type="text" class="form-control" id="custom_domain" name="custom_domain"
+                               value="{{ enterprise.custom_domain if enterprise else '' }}" 
+                               placeholder="example.com">
+                        <div class="form-text">Full domain name without http:// or https://</div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="primary_color" class="form-label">Primary Color</label>
+                        <input type="color" class="form-control form-control-color" id="primary_color" name="primary_color"
+                               value="{{ enterprise.primary_color if enterprise else '#0d6efd' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="secondary_color" class="form-label">Secondary Color</label>
+                        <input type="color" class="form-control form-control-color" id="secondary_color" name="secondary_color"
+                               value="{{ enterprise.secondary_color if enterprise else '#6c757d' }}">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="logo" class="form-label">Logo</label>
+                    {% if enterprise and enterprise.logo_path %}
+                    <div class="mb-2">
+                        <img src="{{ enterprise.logo_path }}" alt="Current logo" style="max-height: 100px;">
+                        <p class="form-text">Current logo. Upload a new one to replace it.</p>
+                    </div>
+                    {% endif %}
+                    <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="active" name="active" 
+                               {% if not enterprise or enterprise.active %}checked{% endif %}>
+                        <label class="form-check-label" for="active">Active</label>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Enterprise
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Edit Material</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/enterprise">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/enterprise/materials">Materials</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Material</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form action="/enterprise/materials/update/{{ material.id }}" method="post" enctype="multipart/form-data">
+                        <div class="form-group mb-3">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ material.name }}" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="material_type">Material Type</label>
+                            <select class="form-control" id="material_type" name="material" disabled>
+                                <option value="tile" {% if material.material == 'tile' %}selected{% endif %}>Tile</option>
+                                <option value="wallpaper" {% if material.material == 'wallpaper' %}selected{% endif %}>Wallpaper</option>
+                                <option value="flooring" {% if material.material == 'flooring' %}selected{% endif %}>Flooring</option>
+                                <option value="paint" {% if material.material == 'paint' %}selected{% endif %}>Paint</option>
+                            </select>
+                            <input type="hidden" name="material" value="{{ material.material }}">
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="price_per_sqm">Price per m²</label>
+                            <input type="number" step="0.01" class="form-control" id="price_per_sqm" name="price_per_sqm" value="{{ material.price_per_sqm }}" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="manufacturer">Manufacturer</label>
+                            <input type="text" class="form-control" id="manufacturer" name="manufacturer" value="{{ material.manufacturer }}" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="description">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required>{{ material.description }}</textarea>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label>Current Image</label>
+                            <div>
+                                <img src="{{ material.image_path }}" alt="{{ material.name }}" class="img-thumbnail" style="max-height: 200px;">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="image">New Image (leave empty to keep current)</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Update Material</button>
+                        <a href="/enterprise/materials" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Technical Specifications</h5>
+                </div>
+                <div class="card-body">
+                    {% if tech_specs %}
+                        {% if material.material == 'tile' %}
+                            <p><strong>Water Resistance:</strong> {{ tech_specs.water_resistance }}</p>
+                            <p><strong>Slip Rating:</strong> {{ tech_specs.slip_rating }}</p>
+                            <p><strong>Frost Resistant:</strong> {{ 'Yes' if tech_specs.frost_resistant else 'No' }}</p>
+                            <p><strong>Indoor/Outdoor:</strong> {{ tech_specs.indoor_outdoor }}</p>
+                            <p><strong>PEI Rating:</strong> {{ tech_specs.pei_rating }}</p>
+                        {% elif material.material == 'paint' %}
+                            <p><strong>Paint Finish:</strong> {{ tech_specs.paint_finish }}</p>
+                            <p><strong>VOC Content:</strong> {{ tech_specs.voc_content }}</p>
+                            <p><strong>Coverage Area:</strong> {{ tech_specs.coverage_area }} m²</p>
+                            <p><strong>Drying Time:</strong> {{ tech_specs.drying_time }} hours</p>
+                        {% elif material.material == 'wallpaper' %}
+                            <p><strong>Pattern Repeat:</strong> {{ tech_specs.pattern_repeat }} cm</p>
+                            <p><strong>Washable:</strong> {{ 'Yes' if tech_specs.washable else 'No' }}</p>
+                            <p><strong>Removable:</strong> {{ 'Yes' if tech_specs.removable else 'No' }}</p>
+                        {% elif material.material == 'flooring' %}
+                            <p><strong>Water Resistance:</strong> {{ tech_specs.water_resistance }}</p>
+                            <p><strong>Slip Rating:</strong> {{ tech_specs.slip_rating }}</p>
+                            <p><strong>Wear Layer:</strong> {{ tech_specs.wear_layer }} mm</p>
+                        {% endif %}
+                    {% else %}
+                        <p>No technical specifications available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

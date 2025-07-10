@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1>Authentication Debug</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>User Information</h3>
+        </div>
+        <div class="card-body">
+            {% if user %}
+                <p><strong>User ID:</strong> {{ user.id }}</p>
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Role:</strong> {{ user.role }}</p>
+                <p class="text-success">✓ User is authenticated</p>
+            {% else %}
+                <p class="text-danger">✗ No user authenticated</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Cookie Information</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>access_token:</strong> {{ request.cookies.get('access_token', 'Not set') | truncate(30) }}</p>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="/login" class="btn btn-primary">Go to Login</a>
+        <a href="/" class="btn btn-secondary">Go to Home</a>
+        <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+</div>
+{% endblock %}

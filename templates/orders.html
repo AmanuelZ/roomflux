@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">My Orders</h1>
+    
+    {% if orders %}
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order #</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                                <tr>
+                                    <td>{{ order.id }}</td>
+                                    <td>{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        {% if order.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">{{ format_order_status(order.status) }}</span>
+                                        {% elif order.status == 'paid' %}
+                                            <span class="badge bg-success">{{ format_order_status(order.status) }}</span>
+                                        {% elif order.status == 'processing' %}
+                                            <span class="badge bg-info">{{ format_order_status(order.status) }}</span>
+                                        {% elif order.status == 'shipped' %}
+                                            <span class="badge bg-primary">{{ format_order_status(order.status) }}</span>
+                                        {% elif order.status == 'delivered' %}
+                                            <span class="badge bg-success">{{ format_order_status(order.status) }}</span>
+                                        {% elif order.status == 'cancelled' %}
+                                            <span class="badge bg-danger">{{ format_order_status(order.status) }}</span>
+                                        {% elif order.status == 'payment_failed' %}
+                                            <span class="badge bg-danger">{{ format_order_status(order.status) }}</span>
+                                        {% elif order.status == 'awaiting_fulfillment' %}
+                                            <span class="badge bg-info">{{ format_order_status(order.status) }}</span>
+                                        {% else %}
+                                            <span class="badge bg-dark">{{ format_order_status(order.status) }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ order.total_amount|round(2) }} Br</td>
+                                    <td>
+                                        <a href="/orders/{{ order.id }}" class="btn btn-sm btn-outline-primary">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fa fa-shopping-bag fa-4x text-muted"></i>
+            </div>
+            <h3>No orders yet</h3>
+            <p class="text-muted">You haven't placed any orders yet.</p>
+            <a href="/room_visualization_index" class="btn btn-primary mt-3">
+                Start Shopping
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

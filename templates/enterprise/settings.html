@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Enterprise Settings</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/enterprise/materials" class="btn btn-dark">
+                <i class="fas fa-boxes"></i> Manage Materials
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Enterprise Name</label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               value="{{ enterprise.name }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="contact_email" class="form-label">Contact Email</label>
+                        <input type="email" class="form-control" id="contact_email" name="contact_email"
+                               value="{{ enterprise.contact_email or '' }}">
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="primary_color" class="form-label">Primary Color</label>
+                        <input type="color" class="form-control form-control-color" id="primary_color" name="primary_color"
+                               value="{{ enterprise.primary_color or '#0d6efd' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="secondary_color" class="form-label">Secondary Color</label>
+                        <input type="color" class="form-control form-control-color" id="secondary_color" name="secondary_color"
+                               value="{{ enterprise.secondary_color or '#6c757d' }}">
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="website" class="form-label">Website URL</label>
+                        <input type="url" class="form-control" id="website" name="website"
+                               value="{{ enterprise.website or '' }}" placeholder="https://example.com">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="phone" name="phone"
+                               value="{{ enterprise.phone or '' }}">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address</label>
+                    <textarea class="form-control" id="address" name="address" rows="2">{{ enterprise.address or '' }}</textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="logo" class="form-label">Logo</label>
+                    {% if enterprise.logo_path %}
+                    <div class="mb-2">
+                        <img src="{{ enterprise.logo_path }}" alt="Current logo" style="max-height: 100px;">
+                        <p class="form-text">Current logo. Upload a new one to replace it.</p>
+                    </div>
+                    {% endif %}
+                    <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

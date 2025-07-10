@@ -1,0 +1,1945 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-5">
+
+  <!-- Mobile Navigation -->
+  <div class="d-md-none mobile-nav-bar">
+    <div class="btn-group w-100" role="group">
+      <button type="button" class="btn btn-outline-primary" id="mobileRoomViewBtn">
+        <i class="fas fa-image"></i><span class="d-block small">Room</span>
+      </button>
+      <button type="button" class="btn btn-outline-primary active" id="mobileAIBtn">
+        <i class="fas fa-magic"></i><span class="d-block small">AI</span>
+      </button>
+      <button type="button" class="btn btn-outline-primary" id="mobile3DBtn">
+        <i class="fas fa-cube"></i><span class="d-block small">3D</span>
+      </button>
+      <button type="button" class="btn btn-outline-primary" id="mobileToolsBtn">
+        <i class="fas fa-tools"></i><span class="d-block small">Tools</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <!-- Sidebar -->
+    <div class="col-md-3 order-md-1 order-1" id="materialsSidebar">
+      <div class="bg-white border-right shadow-sm" id="sidebar-wrapper">
+        <!-- Header with logo and actions -->
+        <div class="sidebar-header d-flex justify-content-between align-items-center p-3 border-bottom">
+          <h4 class="m-0">Materials</h4>
+
+          <!-- Add this mobile close button -->
+          <div class="d-flex justify-content-between align-items-center p-2 d-md-none border-bottom">
+            <button class="btn btn-sm btn-outline-dark" id="closeMaterialsBtn">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          {% if user and user.role == 'superadmin' %}
+          <button class="btn btn-outline-primary rounded-circle" data-bs-toggle="modal"
+            data-bs-target="#uploadTextureModal">
+            <i class="fas fa-plus"></i>
+          </button>
+          {% endif %}
+
+        </div>
+
+        <!-- Material Type Selector -->
+        <div class="material-type-selector p-3">
+          <div class="d-flex justify-content-between">
+            <button class="material-type-btn active" data-category="all">
+              <div class="icon-wrapper">
+                <i class="fas fa-border-all"></i>
+              </div>
+              <span>All</span>
+            </button>
+            <button class="material-type-btn" data-category="tile">
+              <div class="icon-wrapper">
+                <i class="fas fa-th"></i>
+              </div>
+              <span>Tiles</span>
+            </button>
+            <button class="material-type-btn" data-category="paint">
+              <div class="icon-wrapper">
+                <i class="fas fa-fill-drip"></i>
+              </div>
+              <span>Paint</span>
+            </button>
+            <button class="material-type-btn" data-category="wallpaper">
+              <div class="icon-wrapper">
+                <i class="fas fa-scroll"></i>
+              </div>
+              <span>Wallpaper</span>
+            </button>
+            <button class="material-type-btn" data-category="flooring">
+              <div class="icon-wrapper">
+                <i class="fas fa-layer-group"></i>
+              </div>
+              <span>Flooring</span>
+            </button>
+            <button class="material-type-btn"  id="accessories-tab" data-category="3d-accessories">
+              <div class="icon-wrapper">
+                <i class="fas fa-shower"></i>
+              </div>
+              <span>Accessories</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search-filter-bar | slick version -->
+        <div class="search-filter-bar p-3 border-bottom">
+          <div class="d-flex align-items-center justify-content-between">
+            <!-- Search toggle button -->
+            <button id="searchToggleBtn" class="btn btn-outline-primary me-2">
+              <i class="fas fa-search"></i>
+            </button>
+
+            <!-- Spacer -->
+            <div class="flex-grow-1"></div>
+
+            <!-- View toggle buttons -->
+            <div class="btn-group me-2">
+              <button id="gridViewBtn" class="btn btn-outline-primary active">
+                <i class="fas fa-th"></i>
+              </button>
+              <button id="listViewBtn" class="btn btn-outline-primary">
+                <i class="fas fa-list"></i>
+              </button>
+            </div>
+
+            <!-- Favorites filter button (new) -->
+            <button id="favoritesFilterBtn" class="btn btn-outline-danger me-2">
+              <i class="fas fa-heart"></i>
+            </button>
+
+            <!-- Filter button -->
+            <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#filterPanel">
+              <i class="fas fa-filter"></i> Filter
+            </button>
+          </div>
+
+          <!-- Expandable search area (hidden by default) -->
+          <div id="searchArea" class="mt-3" style="display: none;">
+            <div class="input-group mb-2">
+              <span class="input-group-text bg-transparent border-end-0">
+                <i class="fas fa-search text-muted"></i>
+              </span>
+              <input type="text" class="form-control border-start-0" id="searchMaterials"
+                placeholder="Search materials...">
+            </div>
+            <select id="searchType" class="form-select">
+              <option value="all">All Fields</option>
+              <option value="name">Name</option>
+              <option value="manufacturer">Manufacturer</option>
+              <option value="composition">Composition</option>
+              <option value="description">Description</option>
+            </select>
+          </div>
+        </div>
+
+
+        <!-- Filter Panel (Collapsible) -->
+        <div class="collapse" id="filterPanel">
+          <div class="filter-options p-3 border-bottom">
+            <div class="d-flex justify-content-between align-items-center mb-3 d-md-none">
+              <h5 class="m-0">Filters</h5>
+              <button class="btn btn-sm btn-outline-dark" id="closeFiltersBtn">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <!-- Price Range -->
+            <div class="filter-section mb-3">
+              <h5 class="filter-heading">Price Range</h5>
+              <div class="price-range-container">
+                <div id="priceRangeSlider" style="margin: 20px; height: 10px;"></div>
+                <div class="d-flex justify-content-between mt-2">
+                  <span><span id="minPriceDisplay">0</span> br</span>
+                  <span><span id="maxPriceDisplay">500000</span> br</span>
+                </div>
+                <input type="hidden" id="minPrice" value="0">
+                <input type="hidden" id="maxPrice" value="500000">
+              </div>
+
+              <!-- Add this inline script -->
+              <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                  if (typeof noUiSlider !== 'undefined') {
+                    // Check if slider already initialized
+                    const priceSlider = document.getElementById('priceRangeSlider');
+                    if (priceSlider && !priceSlider.noUiSlider) {
+                      noUiSlider.create(priceSlider, {
+                        start: [0, 50000],
+                        connect: true,
+                        range: {
+                          'min': 0,
+                          'max': 50000
+                        }
+                      });
+
+                      // Update display values
+                      priceSlider.noUiSlider.on('update', function (values, handle) {
+                        const value = Math.round(values[handle]);
+                        if (handle === 0) {
+                          document.getElementById('minPriceDisplay').textContent = value;
+                          document.getElementById('minPrice').value = value;
+                        } else {
+                          document.getElementById('maxPriceDisplay').textContent = value;
+                          document.getElementById('maxPrice').value = value;
+                        }
+                      });
+
+                      console.log("Price slider created inline");
+                    }
+                  } else {
+                    console.error("noUiSlider library not loaded");
+                  }
+                });
+              </script>
+            </div>
+
+            <!-- Finish Type -->
+            <!-- For tile finish types -->
+            <div class="filter-section">
+              <h5>Tile Finish</h5>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="matte" id="tileFinishMatte" name="tile-finish">
+                <label class="form-check-label" for="tileFinishMatte">Matte</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="glossy" id="tileFinishGlossy" name="tile-finish">
+                <label class="form-check-label" for="tileFinishGlossy">Glossy</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="textured" id="tileFinishTextured"
+                  name="tile-finish">
+                <label class="form-check-label" for="tileFinishTextured">Textured</label>
+              </div>
+            </div>
+
+            <!-- For paint finish types -->
+            <div class="filter-section">
+              <h5>Paint Finish</h5>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="matte" id="paintFinishMatte" name="paint-finish">
+                <label class="form-check-label" for="paintFinishMatte">Matte</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="eggshell" id="paintFinishEggshell"
+                  name="paint-finish">
+                <label class="form-check-label" for="paintFinishEggshell">Eggshell</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="satin" id="paintFinishSatin" name="paint-finish">
+                <label class="form-check-label" for="paintFinishSatin">Satin</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="semi-gloss" id="paintFinishSemiGloss"
+                  name="paint-finish">
+                <label class="form-check-label" for="paintFinishSemiGloss">Semi-Gloss</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="gloss" id="paintFinishGloss" name="paint-finish">
+                <label class="form-check-label" for="paintFinishGloss">Gloss</label>
+              </div>
+            </div>
+
+
+
+            <!-- Manufacturer -->
+            <div class="filter-section">
+              <label class="filter-label">Manufacturer</label>
+              <select class="form-select form-select-sm" id="manufacturerFilter">
+                <option value="all">All Manufacturers</option>
+                <!-- Will be populated dynamically -->
+              </select>
+            </div>
+
+            <!-- Apply/Clear Buttons -->
+            <div class="filter-actions d-flex mt-3">
+              <button class="btn btn-sm btn-outline-primary me-2 flex-grow-1" id="clearFiltersBtn">Clear</button>
+              <button class="btn btn-sm btn-primary flex-grow-1" id="applyFiltersBtn">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Materials Grid -->
+        <!-- Update the materials grid container -->
+        <div class="materials-grid p-3" id="materialsContainer">
+          {% for image in images %}
+          <div class="material-item" data-material="{{ image.material }}" data-finish="{{ image.finish_type }}"
+            data-price="{{ image.price_per_sqm }}" data-manufacturer="{{ image.manufacturer }}"
+            data-description="{{ image.description }}"
+            data-composition="{{ image.technical_specs.material_composition if image.technical_specs else '' }}">
+            <div class="material-card">
+              <button class="favorite-toggle" onclick="toggleFavorite(event, {{ image.id }})" data-id="{{ image.id }}">
+                <i class="far fa-heart"></i>
+              </button>
+              <div class="material-preview">
+                <img alt="{{ image.name }}" class="img-fluid rounded shadow-sm mx-auto d-block fixed-size-image"
+                  src="{{ image.image_path }}" onclick="handleTextureSelection('{{ image.image_path }}', { 
+                        id: {{ image.id }},
+                        width: {{ image.width }}, 
+                        height: {{ image.height }}, 
+                        price_per_sqm: {{ image.price_per_sqm|default(0) }},
+                        name: '{{ image.name }}',
+                        material: '{{ image.material }}'
+                      })" loading="lazy">
+              </div>
+              <div class="material-details">
+                <h6 class="material-name">{{ image.name }}</h6>
+                <div class="material-meta">
+                  <span class="material-badge">{{ image.material }}</span>
+                  <span class="material-price">{{ image.price_per_sqm }} per m²</span>
+                </div>
+                {% if image.width and image.height %}
+                <div class="material-dimensions">
+                  <i class="fas fa-ruler-combined"></i> {{ image.width }}cm × {{ image.height }}cm
+                </div>
+                {% endif %}
+                {% if user %}
+                <!-- For logged-in users: Show the calculator -->
+                <button class="btn btn-sm btn-success cart-btn"
+                  onclick="showMaterialCalculator(event, {{ image.id }}, '{{ image.name }}', {{ image.price_per_sqm|default(0) }}, '{{ image.image_path }}', '{{ image.material }}', {{ image.width|default(0) }}, {{ image.height|default(0) }})">
+                  <i class="fa fa-shopping-cart"></i>
+                </button>
+                {% else %}
+                <!-- For non-logged-in users: Redirect to login -->
+                <button class="btn btn-sm btn-success cart-btn" onclick="window.location.href='/login'">
+                  <i class="fa fa-shopping-cart"></i>
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+
+          <!-- Add the See More button for non-logged-in users -->
+          {% if not user %}
+          <div class="see-more-materials-container">
+            <a href="/login" class="btn btn-outline-primary btn-lg w-100 see-more-btn">
+              <i class="fas fa-unlock-alt me-2"></i> See More Materials
+            </a>
+            <p class="text-muted text-center mt-2 small">
+              <i class="fas fa-info-circle me-1"></i> Log in to access our full collection of materials
+            </p>
+          </div>
+          {% endif %}
+
+        </div>
+
+        <!-- 3D Accessories Container (initially hidden) -->
+        <div id="accessories-container" class="p-3" style="display: none;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>3D Accessories</h5>
+            <div class="accessories-filter">
+              <select id="accessory-category-filter" class="form-select form-select-sm" onchange="filterAccessoriesByCategory()">
+                  <option value="all">All Categories</option>
+                  <option value="bathtubs">Bathtubs</option>
+                  <option value="sinks">Sinks</option>
+                  <option value="toilets">Toilets</option>
+                  <option value="showers">Shower Boxes</option>
+                  <option value="shower-systems">Shower Systems</option>
+                  <option value="faucets">Faucets</option>
+                  <option value="mirrors">Mirrors</option>
+                  <option value="lighting">Lighting</option>
+                  <option value="storage">Storage</option>
+                  <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Accessories Grid (using same structure as materials) -->
+          <div class="materials-grid accessories-grid" id="accessories-grid">
+            <!-- Accessories will be loaded here dynamically with the same structure as materials -->
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading accessories...</p>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+
+
+
+    <!-- Designs Modal Section -->
+    <div class="modal fade" id="uploadTextureModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add New Material</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <!-- <form action="/api/tiles/" method="post" enctype="multipart/form-data" class="texture-upload-form"
+              novalidate> -->
+            <form id="materialUploadForm" enctype="multipart/form-data" class="texture-upload-form" novalidate>
+              <!-- Material Type Selection -->
+              <div class="form-group mb-3">
+                <select name="material" id="materialType" class="form-control" required>
+                  <option value="">Select Type</option>
+                  <option value="tile">Tile</option>
+                  <option value="wallpaper">Wallpaper</option>
+                  <!-- <option value="flooring">Flooring</option> -->
+                  <option value="paint">Paint</option>
+                  <option value="accessory">Accessory</option>
+                </select>
+              </div>
+
+              <!-- Common Fields -->
+              <div class="form-group">
+                <input type="text" name="name" placeholder="Name" class="form-control" required>
+              </div>
+
+              <!-- Tile Specific Fields -->
+              <div class="material-specific tile" style="display: none;">
+                <div class="form-group mb-3">
+                  <label for="tile_width">Width (cm)</label>
+                  <input type="number" id="tile_width" name="tile_width" class="form-control">
+                  <div class="invalid-feedback">Width is required for tiles</div>
+                </div>
+                <div class="form-group mb-3">
+                  <label for="tile_height">Height (cm)</label>
+                  <input type="number" id="tile_height" name="tile_height" class="form-control">
+                  <div class="invalid-feedback">Height is required for tiles</div>
+                </div>
+
+                <!-- Add Material Composition field here for tile -->
+                <div class="form-group mb-3">
+                  <label for="material_composition">Material Composition</label>
+                  <input type="text" name="material_composition" id="material_composition" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <select name="finish_type" class="form-control">
+                    <option value="">Select Finish</option>
+                    <option value="matte">Matte</option>
+                    <option value="glossy">Glossy</option>
+                    <option value="textured">Textured</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Wallpaper Specific Fields -->
+              <div class="material-specific wallpaper" style="display: none;">
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label>Roll Width (cm)</label>
+                    <input type="number" id="wallpaper_width" name="wallpaper_width"
+                      class="form-control material-dimension" required>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label>Roll Length (cm)</label>
+                    <input type="number" id="wallpaper_height" name="wallpaper_height"
+                      class="form-control material-dimension" required>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Flooring Specific Fields  -->
+              <div class="material-specific flooring" style="display: none;">
+                <div class="form-row">
+                  <div class="form-group">
+                    <input type="number" id="flooring_width" name="flooring_width" placeholder="Width (cm)"
+                      class="form-control">
+                  </div>
+                  <div class="form-group">
+                    <input type="number" id="flooring_height" name="flooring_height" placeholder="Length (cm)"
+                      class="form-control">
+                  </div>
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="material_composition">Material Composition</label>
+                  <input type="text" name="material_composition" id="material_composition" class="form-control">
+                </div>
+              </div>
+
+              <!-- Paint Specific Fields -->
+              <div class="material-specific paint" style="display: none;">
+                <div class="form-group mb-3">
+                  <label for="paint_type">Paint Type</label>
+                  <select id="paint_type" name="paint_type" class="form-control">
+                    <option value="solid">Solid Color</option>
+                    <option value="textured">Textured Paint</option>
+                  </select>
+                </div>
+
+                <!-- Solid Paint Fields -->
+                <div id="solid_paint_fields" class="paint-type-fields">
+                  <div class="form-group mb-3">
+                    <label for="color_code">Color Code (HEX)</label>
+                    <input type="color" id="color_code" name="color_code" class="form-control">
+                    <div id="color-preview"
+                      style="margin-top: 10px; width: 50px; height: 50px; border: 1px solid #ccc;"></div>
+                    <span id="hex-display" style="display: block; margin-top: 5px;"></span>
+                  </div>
+                </div>
+
+                <!-- Textured Paint Fields -->
+                <div id="textured_paint_fields" class="paint-type-fields" style="display: none;">
+                  <div class="form-group mb-3">
+                    <label for="paint_image">Paint Texture Image</label>
+                    <input type="file" id="paint_image" name="image" accept="image/*" class="form-control">
+                  </div>
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="paint_finish">Paint Finish</label>
+                  <select id="paint_finish" name="paint_finish" class="form-control">
+                    <option value="">Select Paint Finish</option>
+                    <option value="matte">Matte</option>
+                    <option value="eggshell">Eggshell</option>
+                    <option value="satin">Satin</option>
+                    <option value="semi-gloss">Semi-Gloss</option>
+                    <option value="gloss">Gloss</option>
+                    <option value="gloss">Effects</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Accessory Specific Fields -->
+              <div class="material-specific accessory" style="display: none;">
+                <!-- Category -->
+                <div class="form-group mb-3">
+                  <label for="accessory_category">Category</label>
+                  <select name="category" class="form-control" required>
+                      <option value="">Select Category</option>
+                      {% for category in accessory_categories %}
+                      <option value="{{ category.name }}">{{ category.display_name }}</option>
+                      {% endfor %}
+                  </select>
+
+                </div>
+                
+                <!-- 3D Model File -->
+                <div class="form-group mb-3">
+                  <label for="model_file">3D Model File</label>
+                  <input type="file" id="model_file" name="model_file" accept=".obj,.gltf,.glb" class="form-control" required>
+                  <small class="form-text text-muted">Supported: .obj, .gltf, .glb</small>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="mtl_file">Material File (.mtl)</label>
+                    <input type="file" id="mtl_file" name="mtl_file" accept=".mtl" class="form-control" required>
+                    <div class="invalid-feedback">MTL file is required for proper materials</div>
+                </div>
+                
+                <!-- Dimensions -->
+                <div class="form-group mb-3">
+                  <label>Dimensions (cm)</label>
+                  <div class="row">
+                    <div class="col-4">
+                      <input type="number" step="0.1" name="length_cm" placeholder="Length" class="form-control" required>
+                    </div>
+                    <div class="col-4">
+                      <input type="number" step="0.1" name="width_cm" placeholder="Width" class="form-control" required>
+                    </div>
+                    <div class="col-4">
+                      <input type="number" step="0.1" name="height_cm" placeholder="Height" class="form-control" required>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Volume (auto-calculated + manual override) -->
+                <div class="form-group mb-3">
+                  <label for="volume_liters">Volume (Liters)</label>
+                  <input type="number" step="0.1" name="volume_liters" class="form-control" placeholder="Auto-calculated or enter manually">
+                  <small class="form-text text-muted">Leave empty for auto-calculation from dimensions</small>
+                </div>
+                
+                <!-- Weight -->
+                <div class="form-group mb-3">
+                  <label for="weight_kg">Weight (kg)</label>
+                  <input type="number" step="0.1" name="weight_kg" class="form-control">
+                </div>
+                
+                <!-- Material Type -->
+                <div class="form-group mb-3">
+                  <label for="material_type">Material Type</label>
+                  <input type="text" name="material_type" class="form-control" placeholder="e.g., Ceramic, Metal, Glass">
+                </div>
+                
+                <!-- Colors -->
+                <div class="form-group mb-3">
+                  <label for="default_color">Default Color</label>
+                  <input type="color" name="default_color" class="form-control" value="#FFFFFF" required>
+                </div>
+                
+                <div class="form-group mb-3">
+                  <label>Additional Colors (Optional)</label>
+                  <div id="color-picker-container">
+                    <div class="color-input-group mb-2">
+                      <input type="color" name="additional_colors[]" class="form-control" style="width: 60px; display: inline-block;">
+                      <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeColorInput(this)">Remove</button>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-primary" onclick="addColorInput()">Add Color</button>
+                </div>
+                
+                <!-- Installation Difficulty -->
+                <div class="form-group mb-3">
+                  <label for="installation_difficulty">Installation Difficulty</label>
+                  <select name="installation_difficulty" class="form-control" required>
+                    <option value="">Select Difficulty</option>
+                    <option value="easy">Easy (Self install)</option>
+                    <option value="medium">Medium (Self with manual or professional)</option>
+                    <option value="hard">Hard (Needs professional installer)</option>
+                    <option value="very_hard">Very Hard (Licensed professional required)</option>
+                  </select>
+                </div>
+                
+                <!-- Style Category -->
+                <div class="form-group mb-3">
+                  <label for="style_category">Style Category</label>
+                  <select name="style_category" class="form-control">
+                    <option value="">Select Style</option>
+                    <option value="modern">Modern</option>
+                    <option value="traditional">Traditional</option>
+                    <option value="minimalist">Minimalist</option>
+                    <option value="industrial">Industrial</option>
+                    <option value="rustic">Rustic</option>
+                    <option value="contemporary">Contemporary</option>
+                    <option value="scandinavian">Scandinavian</option>
+                    <option value="art_deco">Art Deco</option>
+                  </select>
+                </div>
+                
+                <!-- Thumbnail Image -->
+                <div class="form-group mb-3">
+                  <label for="thumbnail_image">Thumbnail Image</label>
+                  <input type="file" name="thumbnail_image" accept="image/*" class="form-control">
+                  <small class="form-text text-muted">Preview image for the accessory</small>
+                </div>
+              </div>
+
+
+              <!-- Common Fields -->
+              <div class="form-group">
+                <input type="number" step="0.1" name="price_per_sqm" placeholder="Price per m²" class="form-control price-input" required>
+                <!-- <label class="price-label">Price per m²</label> -->
+              </div>
+
+
+              <div class="form-group">
+                <input type="text" name="manufacturer" placeholder="Manufacturer" class="form-control" required>
+              </div>
+
+              <div class="form-group">
+                <textarea name="description" placeholder="Description" class="form-control" required></textarea>
+              </div>
+
+              <!-- Image upload for all except paint -->
+              <div class="form-group non-paint-field non-accessory-field">
+                <label class="file-upload">
+                  <input type="file" name="image" accept="image/*">
+                  <span>Choose Image</span>
+                </label>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Upload Material</button>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End Design Modal -->
+
+    <!-- Main Content -->
+    <div class="col-md-9 order-md-1 order-2">
+      <div class="text-center">
+        <h1 class="display-4">ROOM VISUALIZER</h1>
+        <p class="lead mb-3">A webapp to visualize your room with new materials using AI or 3D.</p>
+
+        <!-- Add Tabs -->
+        <ul class="nav nav-tabs mb-4" id="visualizerTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="ai-visualizer-tab" data-bs-toggle="tab" data-bs-target="#ai-visualizer"
+              type="button" role="tab" aria-controls="ai-visualizer" aria-selected="true">
+              <i class="fas fa-image me-2"></i> AI 
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="threed-visualizer-tab" data-bs-toggle="tab" data-bs-target="#threed-visualizer"
+              type="button" role="tab" aria-controls="threed-visualizer" aria-selected="false">
+              <i class="fas fa-cube me-2"></i> 3D (Beta)
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- AI Visualizer Tab -->
+      <div class="tab-content" id="visualizerTabsContent">
+        <!-- AI Visualizer Tab (Current Functionality) -->
+        <div class="tab-pane fade show active" id="ai-visualizer" role="tabpanel" aria-labelledby="ai-visualizer-tab">
+
+          <div class="row py-4">
+            <div class="col-lg-10 mx-auto">
+              <!-- Upload image form -->
+              <form id="uploadForm" enctype="multipart/form-data">
+                <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
+                  <input class="form-control border-0" id="upload" name="file" type="file" accept="image/*"
+                    onchange="handleImageUpload(event)">
+                  <label class="font-weight-light text-muted" for="upload" id="upload-label">Choose file</label>
+                  <div class="input-group-append">
+                    <label class="btn btn-light m-0 rounded-pill px-4" for="upload">
+                      <i class="fa fa-cloud-upload mr-2 text-muted"></i>
+                      <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
+                    </label>
+                  </div>
+                </div>
+                <!-- Uploaded image preview -->
+
+                <!-- <img alt="Uploaded room image" class="img-fluid rounded shadow-sm mx-auto d-block" id="imageResult" name="change"
+                        src="{{room}}"> -->
+
+                <p class="font-italic text-center">The image uploaded will be rendered inside the box below.</p>
+                <p class="small text-center d-md-none">Upload a room photo or choose a sample below.</p>
+                <!-- <div class="image-area mt-4">
+                  <div class="image-container position-relative">
+                    <img alt="Uploaded room image" class="img-fluid rounded shadow-sm mx-auto d-block filtered-image" id="imageResult" name="change"
+                        src="https://images.pexels.com/photos/8583743/pexels-photo-8583743.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+                        style="height: 500px;">
+                  </div>
+                </div> -->
+                <!-- <div class="image-area mt-4">
+                  <img alt="Uploaded room image is rendered here" class="img-fluid rounded shadow-sm mx-auto d-block" id="imageResult" name="change" src="{{ room }}">
+                </div> -->
+                <div class="image-area mt-4" id="imageAreaContainer" {% if not room or
+                  room=='/static/IMG/placeholder.jpg' %}style="display: none;" {% endif %}>
+                  <img alt="Uploaded room image is rendered here" class="img-fluid rounded shadow-sm mx-auto d-block"
+                    id="imageResult" name="change" src="{{ room }}">
+                </div>
+
+                <!-- Comparison Slider -->
+                <div class="image-comparison-slider mt-4" id="comparisonSlider" style="display: none;">
+                  <div class="comparison-container">
+                    <div class="original-image">
+                      <img id="originalImage" alt="Original room image"
+                        class="img-fluid rounded shadow-sm mx-auto d-block">
+                    </div>
+                    <div class="rendered-image">
+                      <img id="renderedImage" alt="Rendered room image"
+                        class="img-fluid rounded shadow-sm mx-auto d-block">
+                    </div>
+                    <div class="slider-handle" id="sliderHandle" style="cursor: ew-resize; z-index: 1000;">
+                      <div class="slider-line"></div>
+                      <div class="slider-button">
+                        <i class="fas fa-arrows-alt-h"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="slider-controls mt-3 text-center">
+                    <button type="button" class="btn btn-sm btn-outline-primary"
+                      onclick="showOriginalInComparison()">Original</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary"
+                      onclick="showRenderedInComparison()">Rendered</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary active"
+                      onclick="enableSliderInComparison()">Slider</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="exitComparisonMode()">Exit
+                      Comparison</button>
+                  </div>
+                </div>
+
+
+                <div id="actionButtonsContainer" class="action-buttons mt-4 d-none d-md-flex" style="display: none;">
+                  <button type="button" class="btn btn-primary rounded-pill px-4" onclick="downloadImage(event)">
+                    <i class="fa fa-download mr-2"></i> Download
+                  </button>
+
+                  <div class="dropdown">
+                    <button class="btn btn-primary rounded-pill px-4 dropdown-toggle" data-bs-toggle="dropdown">
+                      <i class="fa fa-share-alt mr-2"></i> Share
+                    </button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" onclick="copyLink()"><i class="fa fa-link mr-2"></i> Copy Link</a>
+                      <a class="dropdown-item" onclick="shareToTelegram()"><i class="fa fa-telegram mr-2"></i>
+                        Telegram</a>
+                      <a class="dropdown-item" onclick="shareToWhatsApp()"><i class="fa fa-whatsapp mr-2"></i>
+                        WhatsApp</a>
+                      <!-- <a class="dropdown-item" onclick="shareToFacebook()"><i class="fa fa-facebook mr-2"></i> Facebook</a>
+                          <a class="dropdown-item" onclick="shareToInstagram()"><i class="fa fa-instagram mr-2"></i> Instagram</a>
+                          <a class="dropdown-item" onclick="shareToPinterest()"><i class="fa fa-pinterest mr-2"></i> Pinterest</a> -->
+                    </div>
+                  </div>
+
+                  <button type="button" class="btn btn-primary rounded-pill px-4" onclick="toggleComparisonMode(event)">
+                    <i class="fa fa-exchange-alt mr-2"></i> Compare
+                  </button>
+
+                  <button type="button" class="btn btn-primary rounded-pill px-4" onclick="saveProject()">
+                    <i class="fa fa-cube mr-2"></i> Save Project
+                  </button>
+
+                  <button type="button" class="btn btn-primary rounded-pill px-4"
+                    onclick="showCalculatorForCurrentMaterial(event)">
+                    <i class="fa fa-calculator mr-2"></i> Material Quantity Calculator
+                  </button>
+                </div>
+
+                <!-- Sample rooms section -->
+                <div class="sample-rooms-section mt-4">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>Or choose a sample room:</h5>
+                    <button class="btn btn-sm btn-outline-primary active" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#sampleRoomsGallery" aria-expanded="true">
+                      <i class="fas fa-images"></i> <span class="d-none d-sm-inline">Hide Samples</span>
+                    </button>
+                  </div>
+
+                  <div class="collapse show" id="sampleRoomsGallery">
+                    <!-- Room category filter buttons - make scrollable on mobile -->
+                    <!-- <div class="room-category-filters mb-3 overflow-auto">
+                      <div class="btn-group d-flex flex-nowrap" style="min-width: fit-content;">
+                        <button type="button" class="btn btn-sm btn-outline-primary active" data-category="all">
+                          All Rooms
+                        </button>
+                        {% for category in sample_room_categories %}
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-category="{{ category }}">
+                          {{ category|replace('_', ' ')|title }}
+                        </button>
+                        {% endfor %}
+                      </div>
+                    </div> -->
+                    <div class="room-category-filters mb-3" style="min-width: fit-content; overflow-wrap: anywhere;">
+                      <div class="category-icons-container">
+                        <div class="category-icons-scroll category-icons-grid">
+                          <div class="category-icon-item active" data-category="all">
+                            <div class="category-icon">
+                              <i class="fas fa-border-all"></i>
+                            </div>
+                            <span class="category-label">All</span>
+                          </div>
+                          
+                          {% for category in sample_room_categories %}
+                          <div class="category-icon-item" data-category="{{ category }}">
+                            <div class="category-icon">
+                              {% if category == 'bathroom' or category == 'Bathroom' %}
+                                <i class="fas fa-bath"></i>
+                              {% elif category == 'kitchen' or category == 'Kitchen' %}
+                                <i class="fas fa-utensils"></i>
+                              {% elif category == 'living_room' or category == 'living room' or category == 'Living Room' %}
+                                <i class="fas fa-couch"></i>
+                              {% elif category == 'bedroom' or category == 'Bedroom' %}
+                                <i class="fas fa-bed"></i>
+                              {% elif category == 'dining_room' or category == 'dining room' or category == 'Dining Room' %}
+                                <i class="fas fa-chair"></i>
+                              {% elif category == 'office' or category == 'Home Office' %}
+                                <i class="fas fa-briefcase"></i>
+                              {% elif category == 'outdoor' or category == 'Outdoor' %}
+                                <i class="fas fa-tree"></i>
+                              {% elif category == 'hallway' or category == 'Corridor' %}
+                                <i class="fas fa-door-open"></i>
+                              {% elif category == 'commercial' or category == 'Commercial' %}
+                                <i class="fas fa-store"></i>
+                              {% elif category == 'hotel' or category == 'Hotel Room' %}
+                                <i class="fas fa-hotel"></i>
+                              {% elif category == 'All Rooms' or category == 'all rooms' %}
+                                <i class="fas fa-border-all"></i>
+                              {% else %}
+                                <i class="fas fa-home"></i>
+                              {% endif %}
+                            </div>
+                            <span class="category-label">{{ category|replace('_', ' ')|title }}</span>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Sample rooms grid - make it a horizontal scroll on mobile -->
+                    <div class="sample-rooms-grid d-md-grid d-flex flex-nowrap overflow-auto pb-2">
+                      {% if sample_rooms_by_category and sample_rooms_by_category|length > 0 %}
+                        {% for category, rooms in sample_rooms_by_category.items() %}
+                          {% for room_img in rooms %}
+                          <div class="sample-room-item" data-category="{{ category }}" style="min-width: 250px; margin-right: 10px;">
+                            <img src="{{ room_img }}" alt="Sample {{ category|replace('_', ' ')|title }} room" class="img-thumbnail"
+                              onclick="selectSampleRoom('{{ room_img }}')">
+                            <div class="sample-room-caption">{{ category|replace('_', ' ')|title }}</div>
+                          </div>
+                          {% endfor %}
+                        {% endfor %}
+                      {% elif sample_room %}
+                        <!-- Display the enterprise sample room -->
+                        <div class="sample-room-item" style="min-width: 250px; margin-right: 10px;">
+                          <img src="{{ sample_room }}" alt="Sample room" class="img-thumbnail"
+                            onclick="selectSampleRoom('{{ sample_room }}')">
+                          <div class="sample-room-caption">Sample Room</div>
+                        </div>
+                      {% else %}
+                        <div class="alert alert-info">
+                          <i class="fas fa-info-circle me-2"></i> No sample rooms available
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3D Visualizer Tab -->
+        <div class="tab-pane fade" id="threed-visualizer" role="tabpanel" aria-labelledby="threed-visualizer-tab">
+          <div class="row py-4">
+            <div class="col-lg-10 mx-auto">
+              <!-- Selected surfaces info -->
+              <div class="selected-surfaces-info mb-3">
+                <div class="card">
+                  <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Selected Surfaces</h5>
+                  </div>
+                  <div class="card-body">
+                    <p class="text-muted mb-2">Click on the radio buttons in the 3D view to select surfaces, then click
+                      on a material to apply it.</p>
+                    <div id="selected-surfaces-list" class="d-flex flex-wrap gap-2">
+                      <span class="badge bg-danger">No surfaces selected</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <button type="button" class="btn btn-sm btn-outline-primary me-2" id="selectAllSurfacesBtn">
+                    <i class="fas fa-check-square me-1"></i> Select All Surfaces
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" id="clearAllSurfacesBtn">
+                    <i class="fas fa-times-circle me-1"></i> Clear Selection
+                  </button>
+                </div>
+                <div>
+                  <span class="badge bg-warning" style="color: black;">
+                    <i class="fas fa-info-circle me-1"></i> Click on a surface to select it
+                  </span>
+                </div>
+              </div>
+
+              <!-- 3D Visualizer Container -->
+              <div id="threed-visualizer-container"
+                style="height: 600px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <!-- The 3D scene will be rendered here -->
+                <div class="loading-indicator">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <p class="mt-2">Loading 3D Visualizer...</p>
+                </div>
+              </div>
+              <!-- DEBUG: Remove this after testing -->
+              <div style="background: yellow; padding: 10px; margin: 10px;">
+                <strong>DEBUG INFO:</strong><br>
+                Enterprise: {{ enterprise.name if enterprise else 'None' }}<br>
+                Enterprise 3D Rooms Count: {{ enterprise_3d_rooms|length if enterprise_3d_rooms else 0 }}<br>
+                {% if enterprise_3d_rooms %}
+                  {% for room in enterprise_3d_rooms %}
+                    Room {{ loop.index }}: ID={{ room.id }}, Name={{ room.name }}, Model={{ room.model_path }}, Thumb={{ room.thumbnail_path }}<br>
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <!-- Room template selector -->
+              <div class="room-template-selector mt-4">
+                <div class="card">
+                  <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Room Templates</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="row" id="room-templates-container">
+                      {% if enterprise and enterprise_3d_rooms and enterprise_3d_rooms|length > 0 %}
+                        <!-- Enterprise 3D rooms -->
+                        {% for room in enterprise_3d_rooms %}
+                        <div class="col-md-4 mb-4">
+                          <div class="card room-template-card" onclick="load3DTemplate('{{ room.name }}', '{{ room.model_path }}')">
+                            <div class="card-img-container">
+                              <img src="{{ room.thumbnail_path }}" class="card-img-top" alt="{{ room.name }}"
+                                  onerror="this.src='/static/img/placeholder-room.jpg'">
+                              <span class="badge bg-success position-absolute top-0 end-0 m-2">Custom</span>
+                            </div>
+                            <div class="card-body text-center">
+                              <h6 class="card-title mb-0">{{ room.name }}</h6>
+                              {% if user and (user.role == 'superadmin' or (user.enterprise and user.enterprise.id == enterprise.id)) %}
+                              <form method="post" action="/enterprise/3d-rooms/delete" class="d-inline" 
+                                    onsubmit="return confirm('Are you sure you want to delete this room?')">
+                                <input type="hidden" name="room_id" value="{{ room.id }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger mt-2">
+                                  <i class="fas fa-trash"></i> Delete
+                                </button>
+                              </form>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </div>
+                        {% endfor %}
+
+                        
+                        <!-- Add upload button for enterprise admins -->
+                        {% if user and (user.role == 'superadmin' or (user.enterprise and user.enterprise.id == enterprise.id)) %}
+                        <div class="col-md-4 mb-4">
+                          <div class="card room-template-card upload-card" data-bs-toggle="modal" data-bs-target="#upload3DRoomModal">
+                            <div class="card-img-container d-flex align-items-center justify-content-center bg-light">
+                              <i class="fas fa-plus fa-3x text-muted"></i>
+                            </div>
+                            <div class="card-body text-center">
+                              <h6 class="card-title mb-0">Upload New Room</h6>
+                              <small class="text-muted">Add custom 3D room</small>
+                            </div>
+                          </div>
+                        </div>
+                        {% endif %}
+                        
+                      {% elif enterprise %}
+                        <!-- Enterprise with no custom rooms - show message -->
+                        <div class="col-12">
+                          <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> No custom 3D rooms available for this enterprise.
+                            {% if user and (user.role == 'superadmin' or (user.enterprise and user.enterprise.id == enterprise.id)) %}
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#upload3DRoomModal" class="alert-link">Upload your first room</a>
+                            {% endif %}
+                          </div>
+                        </div>
+                      {% else %}
+                        <!-- Default rooms for main site -->
+                        <div class="col-md-4 mb-4">
+                          <div class="card room-template-card" onclick="load3DTemplate('bathroom')">
+                            <div class="card-img-container">
+                              <img src="/static/3drooms/Bathroom/bathroom.jpg" class="card-img-top" alt="Bathroom">
+                            </div>
+                            <div class="card-body text-center">
+                              <h6 class="card-title mb-0">Bathroom</h6>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                          <div class="card room-template-card" onclick="load3DTemplate('kitchen')">
+                            <div class="card-img-container">
+                              <img src="/static/3drooms/Kitchen/kitchen.jpg" class="card-img-top" alt="Kitchen">
+                            </div>
+                            <div class="card-body text-center">
+                              <h6 class="card-title mb-0">Kitchen</h6>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                          <div class="card room-template-card" onclick="load3DTemplate('living-room')">
+                            <div class="card-img-container">
+                              <img src="/static/3drooms/Living Room/living-room.jpg" class="card-img-top" alt="Living Room">
+                            </div>
+                            <div class="card-body text-center">
+                              <h6 class="card-title mb-0">Living Room</h6>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                          <div class="card room-template-card" onclick="load3DTemplate('bedroom')">
+                            <div class="card-img-container">
+                              <img src="/static/3drooms/Bedroom/bedroom.jpg" class="card-img-top" alt="Bedroom">
+                            </div>
+                            <div class="card-body text-center">
+                              <h6 class="card-title mb-0">Bedroom</h6>
+                            </div>
+                          </div>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mobile-tools-panel d-md-none" id="mobileToolsPanel">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="m-0">Tools</h5>
+    <button class="btn btn-sm btn-outline-dark" id="closeToolsBtn">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  
+  <div class="d-grid gap-2">
+    <button type="button" class="btn btn-primary" onclick="downloadImage(event)">
+      <i class="fa fa-download me-2"></i> Download Image
+    </button>
+    
+    <button type="button" class="btn btn-primary" onclick="toggleComparisonMode(event)">
+      <i class="fa fa-exchange-alt me-2"></i> Compare Before/After
+    </button>
+    
+    <button type="button" class="btn btn-primary" onclick="saveProject()">
+      <i class="fa fa-save me-2"></i> Save Project
+    </button>
+    
+    <div class="dropdown w-100">
+      <button class="btn btn-primary dropdown-toggle w-100" type="button" id="shareDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa fa-share-alt me-2"></i> Share
+      </button>
+      <ul class="dropdown-menu w-100" aria-labelledby="shareDropdown">
+        <li><a class="dropdown-item" href="#" onclick="shareToWhatsApp()"><i class="fa fa-whatsapp me-2"></i> WhatsApp</a></li>
+        <li><a class="dropdown-item" href="#" onclick="shareToTelegram()"><i class="fa fa-telegram me-2"></i> Telegram</a></li>
+        <li><a class="dropdown-item" href="#" onclick="copyLink()"><i class="fa fa-link me-2"></i> Copy Link</a></li>
+      </ul>
+    </div>
+    
+    <button type="button" class="btn btn-primary" onclick="showCalculatorForCurrentMaterial(event)">
+      <i class="fa fa-calculator me-2"></i> Material Calculator
+    </button>
+    
+    <button type="button" class="btn btn-primary" onclick="addToCart(event)">
+      <i class="fa fa-shopping-cart me-2"></i> Add to Cart
+    </button>
+  </div>
+</div>
+<!-- <button class="mobile-fab d-md-none pulse-animation" id="applyTextureFab" style="display: none;">
+  <i class="fas fa-paint-roller"></i>
+  <span class="fab-text">Apply Texture</span>
+</button> -->
+<button class="mobile-fab d-md-none pulse-animation" id="applyTextureFab" style="display: none;">
+  <i class="fas fa-palette"></i>
+  <span class="fab-tooltip">Apply Texture</span>
+</button>
+</div>
+
+<!-- Modal for Material Calculator -->
+<div class="modal fade" id="materialCalculatorModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Material Quantity Calculator</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="selected-material-info mb-4">
+          <div class="d-flex align-items-center">
+            <img id="selectedTilePreview" class="me-3" style="width: 100px; height: 100px; object-fit: cover;">
+            <div>
+              <h6 id="selectedTileName" class="mb-2"></h6>
+              <p class="mb-1">Material: <span id="materialType"></span></p>
+              <p class="mb-1" id="tileSizeContainer">Size: <span id="tileSize"></span></p>
+              <p class="mb-1">Price: <span id="tilePrice"></span> <span id="priceUnit">per m²</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculation Method Tabs -->
+        <ul class="nav nav-tabs mb-3" id="calculationMethodTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="simple-method-tab" data-bs-toggle="tab" data-bs-target="#simple-method"
+              type="button" role="tab" aria-selected="true">
+              <i class="fas fa-calculator me-2"></i> Simple Method
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="wall-by-wall-tab" data-bs-toggle="tab" data-bs-target="#wall-by-wall-method"
+              type="button" role="tab" aria-selected="false">
+              <i class="fas fa-th-large me-2"></i> Wall-by-Wall Method
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="direct-area-tab" data-bs-toggle="tab" data-bs-target="#direct-area-method"
+              type="button" role="tab" aria-selected="false">
+              <i class="fas fa-calculator me-2"></i> Direct Area Input
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="calculationMethodContent">
+          <!-- Simple Method Tab -->
+          <div class="tab-pane fade show active" id="simple-method" role="tabpanel">
+            <form id="simpleCalculatorForm">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Room Dimensions</label>
+                <div class="row g-2">
+                  <!-- <div class="col-md-4">
+                    <input type="number" class="form-control" id="roomWidth" placeholder="Width (meters)">
+                  </div>
+                  <div class="col-md-4">
+                    <input type="number" class="form-control" id="roomLength" placeholder="Length (meters)">
+                  </div>
+                  <div class="col-md-4">
+                    <input type="number" class="form-control" id="roomHeight" placeholder="Height (meters)">
+                  </div> -->
+                  <div class="col-md-6">
+                    <input type="number" class="form-control" id="roomPerimeter" placeholder="Perimeter (meters)">
+                  </div>
+                  <div class="col-md-6">
+                    <input type="number" class="form-control" id="roomHeight" placeholder="Height (meters)">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Deductions Section -->
+              <div class="mb-3">
+                <label class="form-label fw-bold">Deductions</label>
+                <div id="deductionsContainer">
+                  <!-- Deduction items will be added here dynamically -->
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addDeductionBtn">
+                  <i class="fas fa-plus"></i> Add Door/Window
+                </button>
+              </div>
+
+              <!-- Tile-specific options -->
+              <div id="tileOptions" class="mb-3" style="display: none;">
+                <label class="form-label fw-bold">Tile Options</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="includeFloor">
+                  <label class="form-check-label" for="includeFloor">Include floor</label>
+                </div>
+              </div>
+
+              <!-- Material-specific options -->
+              <div id="paintOptions" class="mb-3" style="display: none;">
+                <label class="form-label fw-bold">Paint Options</label>
+                <select class="form-control mb-2" id="coatCount">
+                  <option value="1">1 coat</option>
+                  <option value="2" selected>2 coats</option>
+                  <option value="3">3 coats</option>
+                </select>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="includeCeiling">
+                  <label class="form-check-label" for="includeCeiling">Include ceiling</label>
+                </div>
+              </div>
+
+              <div id="wallpaperOptions" class="mb-3" style="display: none;">
+                <label class="form-label fw-bold">Wallpaper Options</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="includeWastePercentage" checked>
+                  <label class="form-check-label" for="includeWastePercentage">Include 15% waste for pattern
+                    matching</label>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Wall-by-Wall Method Tab -->
+          <div class="tab-pane fade" id="wall-by-wall-method" role="tabpanel">
+            <div class="mb-3">
+              <div id="wallsContainer">
+                <!-- Wall items will be added here dynamically -->
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addWallBtn">
+                <i class="fas fa-plus"></i> Add Wall
+              </button>
+            </div>
+
+            <!-- Tile-specific options -->
+            <div id="tileOptionsWallByWall" class="mb-3" style="display: none;">
+              <label class="form-label fw-bold">Tile Options</label>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="includeFloorWallByWall">
+                <label class="form-check-label" for="includeFloorWallByWall">Include floor</label>
+              </div>
+              <div id="ceilingDetails" class="mt-2" style="display: none;">
+                <div class="row">
+                  <div class="col">
+                    <input type="number" class="form-control" id="ceilingWidth" placeholder="Width (m)">
+                  </div>
+                  <div class="col">
+                    <input type="number" class="form-control" id="ceilingLength" placeholder="Length (m)">
+                  </div>
+                </div>
+                <small class="text-muted">These dimensions will be used for floor area calculation.</small>
+              </div>
+            </div>
+
+            <!-- Paint Coat Options -->
+            <div id="paintOptionsWallByWall" class="mb-3" style="display: none;">
+              <label class="form-label fw-bold">Paint Options</label>
+              <select class="form-control mb-2" id="coatCountWallByWall">
+                <option value="1">1 coat</option>
+                <option value="2" selected>2 coats</option>
+                <option value="3">3 coats</option>
+              </select>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="includeCeilingWallByWall">
+                <label class="form-check-label" for="includeCeilingWallByWall">Include ceiling</label>
+              </div>
+              <div id="ceilingDetails" style="display: none;">
+                <div class="row g-2 mt-2">
+                  <div class="col-md-6">
+                    <input type="number" class="form-control" id="ceilingWidth" placeholder="Width (meters)">
+                  </div>
+                  <div class="col-md-6">
+                    <input type="number" class="form-control" id="ceilingLength" placeholder="Length (meters)">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wallpaper Options -->
+            <div id="wallpaperOptionsWallByWall" class="mb-3" style="display: none;">
+              <label class="form-label fw-bold">Wallpaper Options</label>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="includeWastePercentageWallByWall" checked>
+                <label class="form-check-label" for="includeWastePercentageWallByWall">Include 15% waste for pattern
+                  matching</label>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Direct Area Method Tab -->
+          <div class="tab-pane fade" id="direct-area-method" role="tabpanel">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Total Wall Area</label>
+              <div class="input-group">
+                <input type="number" class="form-control" id="directWallArea" placeholder="Total wall area (m²)">
+                <span class="input-group-text">m²</span>
+              </div>
+              <small class="form-text text-muted">Enter the total wall area directly if you already know it.</small>
+            </div>
+
+            <!-- Material-specific options for direct area method -->
+            <div class="mb-3">
+
+              <!-- Tile Options for Direct -->
+              <div id="tileOptionsDirect" class="mb-3" style="display: none;">
+                <label class="form-label fw-bold">Tile Options</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="includeFloorDirect">
+                  <label class="form-check-label" for="includeFloorDirect">Include floor</label>
+                </div>
+                <div id="floorDetailsDirect" class="mt-2" style="display: none;">
+                  <input type="number" class="form-control" id="directFloorArea" placeholder="Floor area (m²)">
+                </div>
+              </div>
+
+              <!-- Paint Options for Direct -->
+              <div id="paintOptionsDirect" class="mb-3" style="display: none;">
+                <div>
+                  <label class="form-label fw-bold">Paint Options</label>
+                  <select class="form-control mb-2" id="coatCountDirect">
+                    <option value="1">1 coat</option>
+                    <option value="2" selected>2 coats</option>
+                    <option value="3">3 coats</option>
+                  </select>
+                </div>
+                <div class="form-check">
+                  <label class="form-check-label" for="includeCeilingDirect">Include ceiling</label>
+                  <input class="form-check-input" type="checkbox" id="includeCeilingDirect">
+                </div>
+                <div id="ceilingDetailsDirect" style="display: none;">
+                  <div class="input-group mt-2">
+                    <input type="number" class="form-control" id="directCeilingArea" placeholder="Ceiling area (m²)">
+                    <span class="input-group-text">m²</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Wallpaper Options for Direct -->
+              <div id="wallpaperOptionsDirect" class="mb-3" style="display: none;">
+                <label class="form-label fw-bold">Wallpaper Options</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="includeWastePercentageDirect" checked>
+                  <label class="form-check-label" for="includeWastePercentageDirect">Include 15% waste for pattern
+                    matching</label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Calculation Results (Common for both methods) -->
+        <div id="calculationResults" class="mt-4 p-3 bg-light rounded">
+          <h5>Calculation Results</h5>
+          <p>
+            Total Area <i class="fas fa-info-circle" data-bs-toggle="tooltip" title="Total area after deductions"></i>:
+            <span id="totalArea">-</span> m²
+          </p>
+
+          <!-- Tile-specific results -->
+          <div id="tileResults">
+            <p>
+              Tiles Needed <i class="fas fa-info-circle" data-bs-toggle="tooltip"
+                title="Number of tiles = Wall Area ÷ Tile Area (includes 10% extra for cuts and waste)"></i>:
+              <span id="tilesNeeded">-</span> pieces
+            </p>
+          </div>
+
+          <!-- Paint-specific results -->
+          <div id="paintResults" style="display: none;">
+            <p>
+              Paint Needed <i class="fas fa-info-circle" data-bs-toggle="tooltip"
+                title="Based on coverage area and number of coats"></i>:
+              <span id="paintNeeded">-</span> liters
+            </p>
+            <p>
+              Recommended Cans <i class="fas fa-info-circle" data-bs-toggle="tooltip"
+                title="Standard can sizes: 1L, 2.5L, 5L, 10L"></i>:
+              <span id="paintCans">-</span>
+            </p>
+          </div>
+
+          <!-- Wallpaper-specific results -->
+          <div id="wallpaperResults" style="display: none;">
+            <p>
+              Wallpaper Rolls Needed <i class="fas fa-info-circle" data-bs-toggle="tooltip"
+                title="Based on standard roll dimensions and includes waste for pattern matching"></i>:
+              <span id="wallpaperRolls">-</span> rolls
+            </p>
+          </div>
+
+          <!-- Total material needed summary -->
+          <div id="totalMaterialSummary" class="mt-3 p-2 bg-light rounded">
+            <p class="fw-bold mb-1">Total Material Needed:</p>
+            <p id="totalMaterialNeeded" class="mb-0">-</p>
+          </div>
+
+          <p class="mt-3">
+            Estimated Cost <i class="fas fa-info-circle" data-bs-toggle="tooltip"
+              title="Total Cost = Wall Area × Price per m²"></i>:
+            <span id="estimatedCost">-</span> br
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="calculateBtn"
+          onclick="calculateMaterials()">Calculate</button>
+        <button type="button" id="addToCartBtn" class="btn btn-success" onclick="addCalculatedToCart()" disabled>
+          <i class="fa fa-shopping-cart"></i> Add to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Deduction Item Template (hidden) -->
+<template id="deductionItemTemplate">
+  <div class="deduction-item card p-2 mb-2">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="deduction-type me-2">
+        <select class="form-select form-select-sm deduction-type-select">
+          <option value="door">Door</option>
+          <option value="window">Window</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="d-flex flex-grow-1">
+        <input type="number" class="form-control form-control-sm me-1 deduction-width" placeholder="Width (m)">
+        <input type="number" class="form-control form-control-sm me-1 deduction-height" placeholder="Height (m)">
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-danger remove-deduction-btn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+</template>
+
+<!-- Wall Item Template (hidden) -->
+<template id="wallItemTemplate">
+  <div class="wall-item card p-3 mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h6 class="mb-0 wall-title">Wall #1</h6>
+      <div>
+        <button type="button" class="btn btn-sm btn-outline-danger remove-wall-btn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="row g-2 mb-2">
+      <div class="col-md-6">
+        <label class="form-label small">Width (m)</label>
+        <input type="number" class="form-control wall-width" placeholder="Width">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label small">Height (m)</label>
+        <input type="number" class="form-control wall-height" placeholder="Height">
+      </div>
+      <!-- <div class="col-md-4">
+        <label class="form-label small">Material</label>
+        <select class="form-select wall-material">
+          <option value="current">Current Selection</option>
+          <option value="custom">Custom Material</option>
+        </select>
+      </div> -->
+    </div>
+    <div class="custom-material-selector" style="display: none;">
+      <!-- Custom material selector will be implemented with JavaScript -->
+    </div>
+    <div class="wall-deductions mt-2">
+      <label class="form-label small">Deductions (doors, windows)</label>
+      <div class="wall-deductions-container">
+        <!-- Wall deduction items will be added here dynamically -->
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-wall-deduction-btn">
+        <i class="fas fa-plus"></i> Add Deduction
+      </button>
+    </div>
+    <div class="wall-summary mt-2 small text-muted">
+      Net area: <span class="wall-net-area">-</span> m²
+    </div>
+  </div>
+</template>
+
+
+<!-- 3D Showcase Modal -->
+<div id="showcase-modal" class="showcase-modal" style="display: none;">
+  <div class="showcase-overlay"></div>
+  <div class="showcase-container">
+    <div class="showcase-header">
+      <h5 id="showcase-title">Material Preview</h5>
+      <button class="showcase-close" onclick="closeShowcase()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div id="showcase-viewer" class="showcase-viewer">
+      <!-- 3D showcase will render here -->
+      <div class="showcase-loading">
+        <div class="spinner-border text-light" role="status"></div>
+        <p>Loading 3D preview...</p>
+      </div>
+    </div>
+    
+    <!-- Color Options Section -->
+    <div id="fixture-color-options" class="fixture-color-options" style="display: none;">
+        <div class="color-options-header">
+            <h6><i class="fas fa-palette"></i> Available Colors</h6>
+        </div>
+        <div class="color-swatches" id="fixture-color-swatches">
+            <!-- Color swatches will be populated here -->
+        </div>
+    </div>
+    
+    <div class="showcase-controls">
+      <button class="btn btn-sm btn-outline-light" onclick="resetShowcaseView()">
+        <i class="fas fa-refresh"></i> Reset View
+      </button>
+      <button class="btn btn-sm btn-outline-light" onclick="toggleShowcaseWireframe()">
+        <i class="fas fa-cube"></i> Wireframe
+      </button>
+    </div>
+    <div class="showcase-info">
+      <p><i class="fas fa-mouse"></i> Drag to rotate • <i class="fas fa-scroll"></i> Scroll to zoom</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3D Room Upload Modal -->
+<div class="modal fade" id="upload3DRoomModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Upload 3D Room</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="/enterprise/3d-rooms/upload" enctype="multipart/form-data">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="roomName" class="form-label">Room Name</label>
+            <input type="text" class="form-control" id="roomName" name="name" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="roomCategory" class="form-label">Category</label>
+            <select class="form-control" id="roomCategory" name="category" required>
+              <option value="">Select Category</option>
+              <option value="bathroom">Bathroom</option>
+              <option value="kitchen">Kitchen</option>
+              <option value="living_room">Living Room</option>
+              <option value="bedroom">Bedroom</option>
+              <option value="dining_room">Dining Room</option>
+              <option value="office">Office</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="roomDescription" class="form-label">Description (Optional)</label>
+            <textarea class="form-control" id="roomDescription" name="description" rows="3"></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label for="roomThumbnail" class="form-label">Thumbnail Image</label>
+            <input type="file" class="form-control" id="roomThumbnail" name="thumbnail" accept="image/*" required>
+            <small class="form-text text-muted">Upload a preview image for the room</small>
+          </div>
+          
+          <div class="mb-3">
+            <label for="roomModel" class="form-label">3D Model File</label>
+            <input type="file" class="form-control" id="roomModel" name="model" accept=".gltf,.glb" required>
+            <small class="form-text text-muted">Upload a .gltf or .glb file</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Upload Room</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='/js/GLTFLoader.js') }}"></script>
+
+<script>
+  // Initialize global variables
+  window.selectedMaterialId = null;
+  window.selectedMaterialName = '';
+  window.selectedMaterialPrice = 0;
+  window.calculatedQuantity = 0;
+</script>
+<script>
+  // Store original image for comparison
+  let originalImageSrc = '';
+
+  function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+      // Reset any selected sample room
+      document.querySelectorAll('.sample-room-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+
+      // Preview the image
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const imageResult = document.getElementById('imageResult');
+        imageResult.src = e.target.result;
+
+        // Show the entire image area container
+        const imageAreaContainer = document.getElementById('imageAreaContainer');
+        if (imageAreaContainer) {
+          imageAreaContainer.style.display = 'block';
+        }
+      }
+      reader.readAsDataURL(file);
+
+      // Send the image to the server for processing
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('button', 'texture'); // or 'color', depending on what you want to do by default
+
+      fetch("{{ url_for('predict_image_room') }}", {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Handle the response from the server
+          console.log(data);
+          // Store the original image path from the server
+          if (data.room_image) {
+            window.originalImagePath = data.room_image;
+            console.log('Original image path stored:', window.originalImagePath);
+          }
+          // Show action buttons
+          document.getElementById('actionButtonsContainer').style.display = 'flex';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  }
+
+  // Add event listener for tab change
+  document.addEventListener('DOMContentLoaded', function () {
+    // Set up tab change event listeners using Bootstrap's API
+    const tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
+    tabs.forEach(tab => {
+      tab.addEventListener('shown.bs.tab', function (event) {
+        console.log("Tab changed to:", event.target.id);
+        // Force resize to ensure 3D renderer adjusts properly
+        window.dispatchEvent(new Event('resize'));
+      });
+    });
+  });
+
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Check if URL has a hash fragment for 3D visualizer
+    if (window.location.hash === '#3d-visualizer') {
+      // Get the 3D tab element
+      const threeDTab = document.getElementById('threed-visualizer-tab');
+      if (threeDTab) {
+        // Create a new bootstrap tab instance and show it
+        const tab = new bootstrap.Tab(threeDTab);
+        tab.show();
+
+        // Also update the active classes manually to be sure
+        document.getElementById('ai-visualizer-tab').classList.remove('active');
+        threeDTab.classList.add('active');
+
+        document.getElementById('ai-visualizer').classList.remove('show', 'active');
+        document.getElementById('threed-visualizer').classList.add('show', 'active');
+
+        // Trigger resize to ensure 3D renderer adjusts properly
+        setTimeout(() => {
+          window.dispatchEvent(new Event('resize'));
+        }, 100);
+      }
+    }
+  });
+</script>
+<script>
+  // Initialize room category filters when the page loads
+  document.addEventListener('DOMContentLoaded', function () {
+    const categoryButtons = document.querySelectorAll('.room-category-filters .btn');
+    const sampleRoomItems = document.querySelectorAll('.sample-room-item');
+
+    console.log(`Found ${categoryButtons.length} category buttons and ${sampleRoomItems.length} sample room items`);
+
+    categoryButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const selectedCategory = this.getAttribute('data-category');
+        console.log(`Selected category: ${selectedCategory}`);
+
+        // Remove active class from all buttons
+        categoryButtons.forEach(btn => btn.classList.remove('active'));
+
+        // Add active class to clicked button
+        this.classList.add('active');
+
+        // Show/hide sample room items based on category
+        sampleRoomItems.forEach(item => {
+          const itemCategory = item.getAttribute('data-category');
+
+          if (selectedCategory === 'all' || itemCategory === selectedCategory) {
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });z
+    });
+  });
+</script>
+
+<!-- Update the texture list items to call different functions based on the active tab -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Get all texture images
+    const textureImages = document.querySelectorAll('.sidebar-scrollable img');
+
+    // Add click event listeners to each image
+    textureImages.forEach(img => {
+      // Store the original onclick attribute
+      const originalOnclick = img.getAttribute('onclick');
+
+      // Remove the original onclick attribute
+      img.removeAttribute('onclick');
+
+      // Add a new click event listener
+      img.addEventListener('click', function () {
+        // Check which tab is active
+        const is3DTabActive = document.getElementById('threed-visualizer') &&
+          document.getElementById('threed-visualizer').classList.contains('show active');
+
+        if (is3DTabActive && typeof window.selectTexture3D === 'function') {
+          // Extract parameters from the original onclick
+          const match = originalOnclick.match(/selectTexture\('([^']+)',\s*(\{[^}]+\})\)/);
+          if (match) {
+            const imagePath = match[1];
+            const tileDataStr = match[2].replace(/([a-zA-Z_]+):/g, '"$1":');
+            const tileData = JSON.parse(tileDataStr);
+
+            // Call the 3D texture selection function
+            window.selectTexture3D(imagePath, tileData);
+          }
+        } else {
+          // Call the original onclick function for the AI visualizer
+          eval(originalOnclick);
+        }
+      });
+    });
+
+    // Add tab change event listeners
+    const aiTab = document.getElementById('ai-visualizer-tab');
+    const threeDTab = document.getElementById('threed-visualizer-tab');
+
+    if (aiTab && threeDTab) {
+      aiTab.addEventListener('shown.bs.tab', function () {
+        console.log("AI visualizer tab shown");
+        updateApplyTextureButton();
+      });
+
+      threeDTab.addEventListener('shown.bs.tab', function () {
+        console.log("3D visualizer tab shown");
+        // This will trigger a resize event which helps the 3D renderer adjust
+        window.dispatchEvent(new Event('resize'));
+        updateApplyTextureButton();
+      });
+    }
+    
+    updateApplyTextureButton();
+  });
+</script>
+<script>
+    // Function to handle accessory selection for fixture replacement
+    function selectAccessoryForReplacement(modelPath, modelName) {
+        // Check if we have a 3D visualizer and it's initialized
+        if (typeof window.replaceFixture === 'function') {
+            window.replaceFixture(modelPath, modelName);
+        } else {
+            console.error('3D visualizer not initialized or replaceFixture function not available');
+            alert('Please initialize the 3D visualizer first by selecting a room template.');
+        }
+    }
+    
+    // Expose the function to the window object so it can be called from the 3D visualizer
+    window.selectAccessoryForReplacement = selectAccessoryForReplacement;
+    
+    // Add click handlers to accessory items
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all accessory items in the materials grid
+        const accessoryItems = document.querySelectorAll('.material-item[data-category="3d-accessories"]');
+        
+        accessoryItems.forEach(item => {
+            // Add click handler
+            item.addEventListener('click', function() {
+                // Get the model path and name from data attributes
+                const modelPath = this.getAttribute('data-model-path');
+                const modelName = this.getAttribute('data-name') || 'Accessory';
+                
+                // If we have a model path, call the replacement function
+                if (modelPath) {
+                    selectAccessoryForReplacement(modelPath, modelName);
+                } else {
+                    console.error('No model path specified for this accessory');
+                }
+            });
+        });
+    });
+    
+    // Function to expose the replaceFixture function from the 3D visualizer
+    function setupFixtureReplacement() {
+        // Check if the 3D visualizer has been initialized
+        if (typeof window.replaceFixture !== 'function' && typeof replaceFixture === 'function') {
+            window.replaceFixture = replaceFixture;
+        }
+    }
+    
+    // Call setup when the 3D visualizer is initialized
+    if (typeof window.onVisualizerInitialized === 'function') {
+        const originalCallback = window.onVisualizerInitialized;
+        window.onVisualizerInitialized = function() {
+            originalCallback();
+            setupFixtureReplacement();
+        };
+    } else {
+        window.onVisualizerInitialized = setupFixtureReplacement;
+    }
+</script>
+
+<script>
+// Function to load 3D accessories
+// function load3DAccessories() {
+//     console.log('Loading 3D accessories...');
+//     const accessoriesGrid = document.getElementById('accessories-grid');
+    
+//     // Show loading spinner
+//     accessoriesGrid.innerHTML = `
+//       <div class="text-center py-5">
+//         <div class="spinner-border text-primary" role="status">
+//           <span class="visually-hidden">Loading...</span>
+//         </div>
+//         <p class="mt-2">Loading accessories...</p>
+//       </div>
+//     `;
+    
+//     // Fetch accessories from the API
+//     fetch('/api/3d-models')
+//       .then(response => {
+//         console.log('API response status:', response.status);
+//         return response.json();
+//       })
+//       .then(data => {
+//         console.log('API response data:', data);
+//         console.log('First model structure:', data.models?.[0]); 
+//         if (data.models && data.models.length > 0) {
+//           displayAccessories(data.models);
+//         } else {
+//           accessoriesGrid.innerHTML = `
+//             <div class="alert alert-info">
+//               <i class="fas fa-info-circle me-2"></i> No 3D accessories found
+//             </div>
+//           `;
+//         }
+//       })
+//       .catch(error => {
+//         console.error('Error loading accessories:', error);
+//         accessoriesGrid.innerHTML = `
+//           <div class="alert alert-danger">
+//             <i class="fas fa-exclamation-triangle me-2"></i> Failed to load accessories: ${error.message}
+//           </div>
+//         `;
+//       });
+// }
+
+
+
+// Add event listeners when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Setting up accessories tab...');
+    
+    // Add event listener for category filter
+    const categoryFilter = document.getElementById('accessory-category-filter');
+    if (categoryFilter) {
+      categoryFilter.addEventListener('change', function() {
+        console.log('Category filter changed to:', this.value);
+        load3DAccessories();
+      });
+    }
+    
+    // Add event listener for accessories tab
+    const accessoriesTab = document.querySelector('.material-type-btn[data-category="3d-accessories"]');
+    if (accessoriesTab) {
+      accessoriesTab.addEventListener('click', function() {
+        console.log('Accessories tab clicked');
+        
+        // Remove active class from all material type buttons
+        document.querySelectorAll('.material-type-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        
+        // Add active class to accessories tab
+        this.classList.add('active');
+        
+        // Hide materials container and show accessories container
+        const materialsContainer = document.getElementById('materialsContainer');
+        const accessoriesContainer = document.getElementById('accessories-container');
+        
+        if (materialsContainer) materialsContainer.style.display = 'none';
+        if (accessoriesContainer) accessoriesContainer.style.display = 'block';
+        
+        // Load accessories
+        load3DAccessories();
+      });
+    }
+    
+    // Add event listeners for other material type buttons to hide accessories
+    const otherMaterialBtns = document.querySelectorAll('.material-type-btn:not([data-category="3d-accessories"])');
+    otherMaterialBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        console.log('Other material tab clicked:', this.getAttribute('data-category'));
+        
+        // Show materials container and hide accessories container
+        const materialsContainer = document.getElementById('materialsContainer');
+        const accessoriesContainer = document.getElementById('accessories-container');
+        
+        if (materialsContainer) materialsContainer.style.display = 'grid';
+        if (accessoriesContainer) accessoriesContainer.style.display = 'none';
+      });
+    });
+});
+</script>
+{% endblock %}
