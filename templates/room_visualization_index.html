@@ -935,17 +935,6 @@
                   <p class="mt-2">Loading 3D Visualizer...</p>
                 </div>
               </div>
-              <!-- DEBUG: Remove this after testing -->
-              <div style="background: yellow; padding: 10px; margin: 10px;">
-                <strong>DEBUG INFO:</strong><br>
-                Enterprise: {{ enterprise.name if enterprise else 'None' }}<br>
-                Enterprise 3D Rooms Count: {{ enterprise_3d_rooms|length if enterprise_3d_rooms else 0 }}<br>
-                {% if enterprise_3d_rooms %}
-                  {% for room in enterprise_3d_rooms %}
-                    Room {{ loop.index }}: ID={{ room.id }}, Name={{ room.name }}, Model={{ room.model_path }}, Thumb={{ room.thumbnail_path }}<br>
-                  {% endfor %}
-                {% endif %}
-              </div>
               <!-- Room template selector -->
               <div class="room-template-selector mt-4">
                 <div class="card">
