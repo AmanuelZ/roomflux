@@ -1,0 +1,28 @@
+name: Deploy to roomflux.com
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          echo "Updating application code..."
+          cd ~/roomflux/room_wall_visualizer/app/Room_Wall_Visualizer
+          git pull origin main
+          
+          echo "Restarting containers..."
+          cd ~/roomflux
+          docker-compose down
+          docker-compose up -d --build
+          
+          echo "Deployment complete! Changes live on roomflux.com"
