@@ -800,23 +800,22 @@ function loadCustom3DRoom(roomName, modelPath) {
             // Add the model to the scene
             room.add(fixedGltf.scene);
             
-            // Identify surfaces and fixtures
+            // ENHANCED: Calculate proper camera position based on room size
+            setupDynamicCameraForCustomRoom(fixedGltf.scene);
+            
+            // ENHANCED: Identify surfaces and fixtures with proper timing
             setTimeout(() => {
                 identifyFixtures();
                 debugRoomObjects();
                 identifySurfaces(fixedGltf.scene);
+                
+                // ENHANCED: Update indicators to face camera after surface identification
+                setTimeout(() => {
+                    updateIndicatorsToFaceCamera();
+                    // Store initial camera settings for this custom room
+                    storeCustomRoomCameraSettings(roomName);
+                }, 200);
             }, 500);
-            
-            // Set default camera position (similar to bathroom)
-            camera.position.set(0, 1, 2);
-            controls.target.set(0, 1, 0);
-            controls.minDistance = 1;
-            controls.maxDistance = 1.8;
-            controls.minPolarAngle = Math.PI / 4.2;
-            controls.maxPolarAngle = Math.PI / 1.5;
-            controls.minAzimuthAngle = -Math.PI / 5;
-            controls.maxAzimuthAngle = Math.PI / 5;
-            controls.update();
             
             // Force a render update
             renderer.render(scene, camera);
@@ -838,6 +837,75 @@ function loadCustom3DRoom(roomName, modelPath) {
             showErrorMessage(`Failed to load ${roomName} room`);
         }
     );
+}
+
+// NEW: Dynamic camera positioning for custom rooms
+function setupDynamicCameraForCustomRoom(model) {
+    // Calculate bounding box of the entire model
+    const bbox = new THREE.Box3().setFromObject(model);
+    const size = new THREE.Vector3();
+    bbox.getSize(size);
+    const center = new THREE.Vector3();
+    bbox.getCenter(center);
+    
+    // Calculate optimal camera distance based on room size
+    const maxDimension = Math.max(size.x, size.y, size.z);
+    const optimalDistance = maxDimension * 1.2; // Adjust multiplier as needed
+    
+    // Position camera at an angle that shows the room well
+    const cameraHeight = center.y + size.y * 0.3; // Slightly above center
+    const cameraDistance = Math.max(optimalDistance, 2); // Minimum distance of 2
+    
+    // Set camera position
+    camera.position.set(
+        center.x + cameraDistance * 0.7,
+        cameraHeight,
+        center.z + cameraDistance * 0.7
+    );
+    
+    // Set controls target to room center
+    controls.target.copy(center);
+    
+    // Set dynamic distance limits based on room size
+    controls.minDistance = cameraDistance * 0.5;
+    controls.maxDistance = cameraDistance * 2;
+    
+    // Set reasonable angle limits (less restrictive than bathroom)
+    controls.minPolarAngle = Math.PI / 6;    // 30 degrees from top
+    controls.maxPolarAngle = Math.PI / 1.2;  // 150 degrees (can look down more)
+    controls.minAzimuthAngle = -Math.PI / 2; // 90 degrees left
+    controls.maxAzimuthAngle = Math.PI / 2;  // 90 degrees right
+    
+    controls.update();
+    
+    console.log(`Dynamic camera setup for custom room:`, {
+        position: camera.position,
+        target: controls.target,
+        roomSize: size,
+        distance: cameraDistance
+    });
+}
+
+// NEW: Store camera settings for custom rooms
+function storeCustomRoomCameraSettings(roomName) {
+    // Initialize if doesn't exist
+    if (!window.initialCameraSettings) {
+        window.initialCameraSettings = {};
+    }
+    
+    // Store settings for this custom room
+    window.initialCameraSettings[roomName.toLowerCase()] = {
+        position: camera.position.clone(),
+        target: controls.target.clone(),
+        minDistance: controls.minDistance,
+        maxDistance: controls.maxDistance,
+        minPolarAngle: controls.minPolarAngle,
+        maxPolarAngle: controls.maxPolarAngle,
+        minAzimuthAngle: controls.minAzimuthAngle,
+        maxAzimuthAngle: controls.maxAzimuthAngle
+    };
+    
+    console.log(`Stored camera settings for ${roomName}`);
 }
 
 
@@ -4224,8 +4292,30 @@ function enhanceLighting() {
     scene.add(fillLight2);
 }
 
+// NEW: Enable material filtering based on identified surfaces
+function enableSurfaceBasedMaterialFiltering(surfaces) {
+    const surfaceTypes = [...new Set(surfaces.map(s => s.userData.type))];
+    console.log('Available surface types in custom room:', surfaceTypes);
+    
+    // You can use this to show/hide material categories
+    // For example, if no floors are found, hide flooring materials
+    const hasFloors = surfaceTypes.includes('floor');
+    const hasWalls = surfaceTypes.includes('wall');
+    const hasCeiling = surfaceTypes.includes('ceiling');
+    
+    // Store this info for material filtering
+    window.customRoomSurfaceTypes = surfaceTypes;
+}
+
+// NEW: Add click handlers specifically for custom rooms
+function addCustomRoomClickHandlers() {
+    // This ensures custom rooms have the same click functionality as default rooms
+    if (typeof addSurfaceClickHandlers === 'function') {
+        addSurfaceClickHandlers();
+    }
+}
+
 // Function to identify surfaces in the loaded model
-// Update the identifySurfaces function to handle null/undefined models
 function identifySurfaces(model) {
     console.log('Identifying surfaces in model by name');
 
@@ -4305,6 +4395,20 @@ function identifySurfaces(model) {
         console.log('No surfaces found by name, falling back to position-based detection');
         identifySurfacesByPosition(model);
     }
+    // ENHANCED: Update indicators to face camera and enable material filtering
+    setTimeout(() => {
+        updateIndicatorsToFaceCamera();
+        
+        // Enable material filtering based on identified surfaces
+        if (foundSurfaces.length > 0) {
+            console.log('Custom room surfaces identified, enabling material filtering');
+            // You can add logic here to show/hide material categories based on available surfaces
+            enableSurfaceBasedMaterialFiltering(foundSurfaces);
+        }
+    }, 100);
+
+    // ENHANCED: Add click handlers for custom room surfaces
+    addCustomRoomClickHandlers();
 }
 
 // Function to safely remove all indicators from the scene

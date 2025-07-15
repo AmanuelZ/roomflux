@@ -1,8 +1,32 @@
-﻿static/
+﻿# Large static asset directories
+static/3drooms/
+static/accessories/
+static/enterprise_3d_rooms/
+static/tiles/
+static/IMG/
+static/img/
+static/data/
+static/models/
+static/test_images/
+static/textures/
+static/uploads/
+
+# Large file types
+*.glb
+*.gltf
+*.bin
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+# Other large directories
 wall_estimation/
 wall_segmentation/
 models/
 venv/
+
+# Python cache
 __pycache__/
 *.pyc
 *.db
