@@ -1,3 +1,4 @@
+# Update .github/workflows/deploy.yml
 name: Deploy to roomflux.com
 
 on:
@@ -18,6 +19,11 @@ jobs:
         script: |
           echo "Updating application code..."
           cd ~/roomflux/room_wall_visualizer/app/Room_Wall_Visualizer
+          
+          # Stash any local changes
+          git stash
+          
+          # Pull latest changes
           git pull origin main
           
           echo "Restarting containers..."
