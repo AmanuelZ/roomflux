@@ -992,14 +992,19 @@ function initSearchToggle() {
     });
   }
 }
-
 function selectSampleRoom(imagePath) {
   console.log("Selected sample room:", imagePath);
-
+  
+  // Show loading screen
+  const loadingScreen = document.getElementById("sampleRoomLoadingScreen");
+  if (loadingScreen) {
+    loadingScreen.style.display = "flex";
+  }
+  
   // Create FormData properly
   const formData = new FormData();
   formData.append("sample_path", imagePath);
-
+  
   // Process the sample room image
   fetch("/process_sample_room", {
     method: "POST",
@@ -1007,41 +1012,54 @@ function selectSampleRoom(imagePath) {
   })
     .then(response => response.json())
     .then(data => {
+      // Hide loading screen
+      if (loadingScreen) {
+        loadingScreen.style.display = "none";
+      }
+      
       if (data.success || data.state === "success") {
         // Show the image
         const imageResult = document.getElementById("imageResult");
         imageResult.src = data.room_image;
-
+        
         // Show the image container
         const imageAreaContainer = document.getElementById("imageAreaContainer");
         if (imageAreaContainer) {
           imageAreaContainer.style.display = "block";
         }
-
+        
         // Show action buttons
         document.getElementById("actionButtonsContainer").style.display = "flex";
-
+        
         // Store the original image path
         window.originalImagePath = data.room_image;
         console.log("Original image path stored:", window.originalImagePath);
-
+        
         // Show the FAB button
         const applyTextureFab = document.getElementById('applyTextureFab');
         if (applyTextureFab) {
           applyTextureFab.style.display = 'flex';
         }
-
+        
         // Update Apply Texture button visibility
         updateApplyTextureButton();
-
+        
         // Scroll to the image result
         imageResult.scrollIntoView({ behavior: 'smooth' });
       } else {
         console.error("Error processing sample room:", data.message || "Unknown error");
+        // Show error message to user
+        alert("Error processing room. Please try again.");
       }
     })
     .catch(error => {
+      // Hide loading screen on error
+      if (loadingScreen) {
+        loadingScreen.style.display = "none";
+      }
+      
       console.error("Error:", error);
+      alert("Error loading room. Please check your connection and try again.");
     });
 }
 
