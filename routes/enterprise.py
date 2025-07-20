@@ -402,7 +402,7 @@ async def edit_enterprise_material_form(
 async def update_enterprise_material(
     material_id: int,
     name: str = Form(...),
-    material_type: str = Form(...),
+    material: str = Form(...),
     price_per_sqm: float = Form(...),
     manufacturer: str = Form(...),
     description: str = Form(...),
@@ -437,7 +437,7 @@ async def update_enterprise_material(
     
     # Update the material
     tile.name = name
-    tile.material = material_type
+    tile.material = material
     tile.price_per_sqm = price_per_sqm
     tile.manufacturer = manufacturer
     tile.description = description

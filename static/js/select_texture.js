@@ -1034,6 +1034,7 @@ function selectTexture(image, tileData) {
                 align-items: center;
                 z-index: 100;
                 border-radius: 5px;
+                color: black;
             }
             
             .loading-content {
