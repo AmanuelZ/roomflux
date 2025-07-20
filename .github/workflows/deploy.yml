@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 10
     
     steps:
-    - name: Fast zero-downtime deployment
+    - name: Zero-downtime deployment
       uses: appleboy/ssh-action@v0.1.5
       with:
         host: ${{ secrets.HOST }}
@@ -18,31 +18,43 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         timeout: 8m
         script: |
-          echo "Starting fast deployment..."
-          cd ~/roomflux
+          echo "Starting deployment..."
+          
+          # Navigate to the git repository directory
+          cd ~/roomflux/room_wall_visualizer/app/Room_Wall_Visualizer
           
           # Pull latest changes
+          echo "Pulling latest changes..."
           git stash
           git pull origin main
           
-          echo "Code updated via volume mount, restarting application..."
-          # Since code is volume mounted, just restart the container
+          # Navigate back to docker-compose directory
+          cd ~/roomflux
+          
+          echo "Code updated, restarting application..."
+          # Restart the application container
           docker-compose -f docker-compose-production.yaml restart app
           
           echo "Waiting for application to be ready..."
-          # Wait for application to restart
           sleep 30
           
           # Health check
-          for i in {1..20}; do
+          HEALTHY=false
+          for i in {1..15}; do
             if curl -f -s http://localhost/health > /dev/null 2>&1; then
               echo "Application is healthy and ready!"
-              echo "Fast deployment completed successfully!"
-              exit 0
+              HEALTHY=true
+              break
             fi
-            echo "Waiting for application... ($i/20)"
+            echo "Waiting for application... ($i/15)"
             sleep 10
           done
           
-          echo "Health check failed, but deployment completed"
-          echo "Please check application manually"
+          if [ "$HEALTHY" = "true" ]; then
+            echo "✅ Deployment completed successfully!"
+            echo "🚀 Application is live at roomflux.com"
+          else
+            echo "⚠️  Health check timeout - please verify manually"
+          fi
+          
+          echo "Deployment process finished."
