@@ -7,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30  # Set overall job timeout
     
     steps:
     - name: Zero-downtime rolling deployment
@@ -15,6 +16,8 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
+        timeout: 25m  # Set SSH timeout
+        command_timeout: 20m  # Set command timeout
         script: |
           echo "Starting zero-downtime deployment..."
           cd ~/roomflux
@@ -23,9 +26,12 @@ jobs:
           git stash
           git pull origin main
           
-          echo "Building new app image..."
-          # Build the new app image
-          docker-compose -f docker-compose-production.yaml build app
+          echo "Building new app image with extended timeout..."
+          # Build the new app image with timeout and parallel processing
+          timeout 15m docker-compose -f docker-compose-production.yaml build --parallel app || {
+            echo "Build timed out or failed, trying without parallel..."
+            timeout 15m docker-compose -f docker-compose-production.yaml build app
+          }
           
           echo "Starting rolling update..."
           # Remove container name constraint temporarily for scaling
