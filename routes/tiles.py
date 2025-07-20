@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.orm import Session
-from database.models import Tile, TechnicalSpec
+from database.models import Tile, TechnicalSpec, EnterpriseMaterial
 from database.database import get_db
 from typing import Optional
 import os
@@ -239,7 +239,7 @@ async def create_tile(
 
     db.commit()
     
-    return RedirectResponse(url="/room_visualization_index", status_code=303)
+    return {"message": "Material created successfully", "tile_id": tile.id}
 
 # Add enterprise routes to get tiles filtered 
 @router.get("/api/enterprise/tiles")

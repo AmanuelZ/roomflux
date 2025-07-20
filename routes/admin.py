@@ -12,6 +12,7 @@ from auth.dependencies import get_current_user
 from utils.helpers import format_order_status
 from auth.auth import get_password_hash
 import time
+import logging
 
 router = APIRouter(prefix="/admin")
 templates = Jinja2Templates(directory="templates")
@@ -1103,6 +1104,9 @@ async def delete_material(
         raise HTTPException(status_code=404, detail="Material not found")
     
     try:
+        # Delete associated enterprise materials first (to avoid foreign key constraint errors)
+        db.query(EnterpriseMaterial).filter(EnterpriseMaterial.tile_id == material_id).delete()
+        
         # Delete associated technical specs first (to avoid foreign key constraint errors)
         db.query(TechnicalSpec).filter(TechnicalSpec.tile_id == material_id).delete()
         
